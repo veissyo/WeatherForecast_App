@@ -7,6 +7,7 @@ public class GetLocation
     public static float? longt;
     public GetLocation()
     {
+        Console.WriteLine("Wybierz miasto:");
         _city = Console.ReadLine() ?? string.Empty;
     }
 

@@ -1,12 +1,14 @@
 ﻿using System.Net.Http;
 using System.Text.Json;
+using System.Globalization;
+
 namespace WeatherForecast_App;
 
 class WeatherForecastAPICALL
 {
     private string GetWeatherUrl()
     {
-        return $"https://api.open-meteo.com/v1/forecast?latitude={GetLocation.lalt}&longitude={GetLocation.longt}&hourly=temperature_2m,rain,apparent_temperature,snowfall&current=temperature_2m,rain,snowfall,cloud_cover";
+        return $"https://api.open-meteo.com/v1/forecast?latitude={(GetLocation.lalt ?? 0).ToString(System.Globalization.CultureInfo.InvariantCulture)}&longitude={(GetLocation.longt ?? 0).ToString(System.Globalization.CultureInfo.InvariantCulture)}&hourly=temperature_2m,rain,apparent_temperature,snowfall&current=temperature_2m,rain,snowfall,cloud_cover";
     }
     public async Task Get_Weather_Forecast()
     {
