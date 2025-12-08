@@ -1,0 +1,178 @@
+﻿@startuml
+top to bottom direction
+
+interface IWeatherService
+{
+    +FetchWeather(location) : WeatherData
+}
+interface IDataProvider << (I,orchid) Strategy >>
+{
+    +GetWeather(location, type)
+}
+interface IWeatherObserver
+{
+    + void Update(WeatherData data)
+}
+
+class APIClient << (C,orchid) Singleton >>
+{
++ http : var
++ dynamicURL : string
++ response : var
++ content : var
+}
+
+together {
+    class WeatherData
+    class CurrentWeatherData
+    {
+        + temperature_2m : double
+        + rain : double
+        + snowfall : double
+        + apparent_temperature : double
+        + cloud_cover : double
+    }
+    class HourlyWeatherData
+    {
+        + time : string
+        + temperature_2m : double
+        + rain : double
+        + snowfall : double
+        + apparent_temperature : double
+        + cloud_cover : double
+    }
+    class DailyWeatherData 
+    {
+        + time : List<string> 
+        + temperature_2m_max : double
+        + temperature_2m_min : double
+        + rain_sum : double
+        + snowfall_sum : double
+        + wind_speed_10m_max : double
+    }
+    
+    DailyWeatherData --|> WeatherData
+    HourlyWeatherData --|> WeatherData
+    CurrentWeatherData --|> WeatherData 
+}
+
+class LocationData
+{
+    + laltitude : double
+    + longtitude : double
+}
+class GeolocationService
+{
+    +GetCoordinates(city) : LocationData
+}
+
+GeolocationService -up-> APIClient : uses
+
+together {
+    class CurrentWeatherService
+    {
+    }
+    
+    class WeeklyWeatherService
+    {
+    }
+    
+    class MonthlyWeatherService
+    {
+    }
+    
+    class HistoricalWeatherService
+    {
+    }
+    
+    WeeklyWeatherService -up-|> IWeatherService : implements
+    MonthlyWeatherService -up-|> IWeatherService : implements
+    CurrentWeatherService -up-|> IWeatherService : implements
+    HistoricalWeatherService -up-|> IWeatherService : implements
+    IWeatherService ..> IDataProvider
+
+}
+
+enum WeatherServiceType
+{
+    + currentWeather
+    + weeklyWeather
+    + monthlyWeather
+}
+
+class WeatherServiceFactory << (C,orchid) Factory >>
+{
+    +CreateWeatherService(type)
+}
+
+WeatherServiceFactory -up-> CurrentWeatherService : creates 
+WeatherServiceFactory -up-> WeeklyWeatherService : creates 
+WeatherServiceFactory -up-> MonthlyWeatherService : creates 
+
+together {
+    class APIDataProvider
+    {
+        + GetWeather(location, type)
+        + BuildUrl(location, type)
+    }
+    
+    class HistoryDataProvider
+    {
+        - history : CachedWeatherHistory
+        + HistoryDataProvider() 
+        + GetWeather(location, type)
+    }
+    
+    APIDataProvider -up-|> IDataProvider
+    HistoryDataProvider -up-|> IDataProvider
+    APIDataProvider -up-> APIClient : uses
+    HistoryDataProvider -down-> CachedWeatherHistory
+    HistoryDataProvider -up-> APIDataProvider : fallback
+
+}
+
+class WeatherHistoryMemento << (C,orchid) Memento >> {
+    +data : WeatherData
+    +timestamp : DateTime
+}
+
+class CachedWeatherHistory
+{
+    - history : List<WeatherHistoryMemento>
+    + SaveState(data)
+    + WeatherHistoryMemento GetLast()
+}
+
+CachedWeatherHistory --> WeatherHistoryMemento : keeps
+
+together {
+    class TemperatureAlert
+    {
+    - _city : string
+    - _temperatureThreshold : double
+    + TemperatureAlert(string city, double threshold)
+    + void Update(WeatherData data)
+    }
+    class ThunderstormAlert
+    {
+    - _city : string
+    - _thunderstormPresence : bool
+    + ThunderstormAlert(string city, bool presence)
+    + void Update(WeatherData data)
+    }
+    class FloodAlert
+    {
+    - _city : string
+    - _flood : double
+    + FloodAlert(string city, double flood)
+    + void Update(WeatherData data)
+    }
+    
+    TemperatureAlert -up-|> IWeatherObserver 
+    ThunderstormAlert -up-|> IWeatherObserver
+    FloodAlert -up-|> IWeatherObserver
+
+}
+
+
+@enduml
