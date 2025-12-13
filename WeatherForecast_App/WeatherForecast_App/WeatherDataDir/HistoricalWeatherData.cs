@@ -13,7 +13,7 @@ public class HistoricalWeatherData : WeatherData
     
     public override string GetSummary()
     {
-        return $"Dane historyczne od {start_date:yyyy-MM-dd} do {end_date:yyyy-MM-dd}\n" + daily.GetSummary();
+        return $"Historical data from {start_date:yyyy-MM-dd} to {end_date:yyyy-MM-dd}\n" + daily.GetSummary();
     }
 }
 

@@ -9,10 +9,9 @@ public class CachedWeatherHistory
         _history = new Dictionary<string, List<WeatherHistoryMemento>>();
     }
     
-    public void SaveState(WeatherData data, LocationData location)
+    public void SaveState(WeatherData data, LocationData location, WeatherServiceType serviceType)
     {
-        var key = GetLocationKey(location);
-        
+        var key = GetLocationKey(location, serviceType);
         if (!_history.ContainsKey(key))
         {
             _history[key] = new List<WeatherHistoryMemento>();
@@ -23,9 +22,9 @@ public class CachedWeatherHistory
         CleanOldData(key);
     }
     
-    public WeatherHistoryMemento? GetLast(LocationData location)
+    public WeatherHistoryMemento? GetLast(LocationData location, WeatherServiceType serviceType)
     {
-        var key = GetLocationKey(location);
+        var key = GetLocationKey(location, serviceType);
         
         if (_history.ContainsKey(key) && _history[key].Count > 0)
         {
@@ -35,15 +34,9 @@ public class CachedWeatherHistory
         return null;
     }
     
-    public List<WeatherHistoryMemento> GetAll(LocationData location)
+    private string GetLocationKey(LocationData location, WeatherServiceType serviceType)
     {
-        var key = GetLocationKey(location);
-        return _history.ContainsKey(key) ? _history[key] : new List<WeatherHistoryMemento>();
-    }
-    
-    private string GetLocationKey(LocationData location)
-    {
-        return $"{location.latitude:F2}_{location.longitude:F2}";
+        return $"{location.latitude:F2}_{location.longitude:F2}_{serviceType}";
     }
     
     private void CleanOldData(string key)

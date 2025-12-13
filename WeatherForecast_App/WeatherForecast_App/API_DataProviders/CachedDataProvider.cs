@@ -15,7 +15,7 @@ public class CachedDataProvider : IDataProvider
 
     public async Task<WeatherData> GetWeatherData(LocationData location, WeatherServiceType serviceType)
     {
-        var cachedData = _cache.GetLast(location);
+        var cachedData = _cache.GetLast(location, serviceType);
         
         if (cachedData != null)
         {
@@ -23,19 +23,13 @@ public class CachedDataProvider : IDataProvider
 
             if (age.TotalMinutes < _cacheValidityMinutes)
             {
-                Console.WriteLine($"✓ Cache HIT! Dane z cache (wiek: {age.TotalMinutes:F1} min)");
+                Console.WriteLine($"Cache data loaded. (Age: {age.TotalMinutes:F1} min)");
                 return cachedData.Data;
             }
         }
-        Console.WriteLine("✗ Cache MISS - pobieram z API...");
+        Console.WriteLine("Cache data unavailable or expired. Fetching data from API.");
         var freshData = await _fallbackProvider.GetWeatherData(location, serviceType);
-        _cache.SaveState(freshData, location);
+        _cache.SaveState(freshData, location, serviceType);
         return freshData;
     }
-
-    /*
-    public CachedWeatherHistory GetCache()
-    {
-        return _cache;
-    }*/
 }
