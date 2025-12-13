@@ -2,11 +2,20 @@
 
 public class LocationData
 {
-    public results[]? results { get; set; }
+    public double longitude { get; set; }
+    public double latitude { get; set; }
+    public LocationData()
+    {
+        
+    }
+    public LocationData(double lat, double lon)
+    {
+        latitude = lat;
+        longitude = lon;
+    }
 }
 
-public class results
+public class GeocodingResponse
 {
-    public float? longitude { get; set; }
-    public float? latitude { get; set; }
+    public List<LocationData>? results { get; set; }
 }
