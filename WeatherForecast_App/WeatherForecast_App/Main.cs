@@ -35,7 +35,7 @@ class Program
 
             // 3. Pobieramy aktualną pogodę
             Console.WriteLine("\nPobieram dane pogodowe...");
-            var dataProvider = new APIDataProvider();
+            var dataProvider = new CachedDataProvider(new APIDataProvider());
             var weatherService = new CurrentWeatherService(dataProvider);
             var weatherData = await weatherService.FetchWeather(location);
 

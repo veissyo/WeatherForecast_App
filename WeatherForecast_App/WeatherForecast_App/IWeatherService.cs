@@ -7,5 +7,8 @@ public interface IWeatherService
 
 public enum WeatherServiceType
 {
-    CURRENT
+    CURRENT,
+    DAILY_7,
+    HOURLY_24,
+    HISTORICAL
 }
