@@ -1,6 +1,22 @@
 ﻿@startuml
 top to bottom direction
 
+class WeatherCodeHelper
+{
+    +GetDescription(int code) : string
+    +IsThunderstorm(int code) : bool
+    +IsHeavyRain(int code) : bool
+    +IsGlazedFrost(int code) : bool
+    +IsFog(int code) : bool
+    +IsSnow(int code) : bool  
+}
+
+class OpenMeteoEndpoints
+{
+    FORECAST_API_URL : string
+    ARCHIVE_API_URL : string
+    GEOCODING_API_URL : string
+}
 enum ReportType
 {
     CURRENT_CONDITIONS
@@ -9,48 +25,66 @@ enum ReportType
     HISTORICAL_ANALYSIS
     LOCATION_COMPARISON
 }
-
-enum WeatherServiceType
+package WeatherServices
 {
+    enum WeatherServiceType
+    {
     CURRENT
     DAILY_7
     HOURLY_24
     HISTORICAL
-}
-
-interface IWeatherService 
-{
-    +FetchWeather(LocationData) : Task<WeatherData>
-}
-interface IDataProvider << (I,orchid) Strategy >> 
-{
-    +GetWeatherData(LocationData location, WeatherServiceType serviceType) : Task<WeatherData>
-}
-
-together {
-    class APIDataProvider
+    }
+    interface IWeatherService 
     {
-        - _client : APIClient
-        + APIDataProvider()
-        + GetWeatherData(LocationData location, WeatherServiceType serviceType) : Task<WeatherData>
-        + BuildUrl((LocationData location, WeatherServiceType serviceType) : string
+        +FetchWeather(LocationData) : Task<WeatherData>
     }
     
-    class CachedDataProvider
+    together {
+        class CurrentWeatherService
+        {
+            - _provider : IDataProvider
+            + CurrentWeatherService(IDataProvider provider)
+            +FetchWeather(LocationData location) : Task<WeatherData>
+        }
+        
+        class DailyWeatherService
+        {
+            - _provider : IDataProvider
+            + DailyWeatherService(IDataProvider provider)
+            +FetchWeather(LocationData location) : Task<WeatherData>
+        }
+        
+        class HourlyWeatherService
+        {
+           - _provider : IDataProvider
+            + HourlyWeatherService(IDataProvider provider)
+            +FetchWeather(LocationData location) : Task<WeatherData>
+        }
+        
+        class HistoricalWeatherService
+        {
+            - _provider : IDataProvider
+            + HistoricalWeatherService(IDataProvider provider)
+            +FetchWeather(LocationData location) : Task<WeatherData>
+        }
+    }
+    class WeatherServiceFactory << (C,orchid) Factory >>
     {
-        - _cache : CachedWeatherHistory 
-        - _fallbackProvider : IDataProvider
-        - _cacheValidityMinutes : int
-        + CachedDataProvider(IDataProvider fallbackProvider, int cacheValidityMinutes)
-        + GetWeatherData(LocationData location, WeatherServiceType serviceType) : Task<WeatherData>
+        - _provider : IDataProvider
+        + WeatherServiceFactory(IDataProvider provider)
+        +CreateWeatherService(WeatherServiceType type) : IWeatherService
     }
     
-    APIDataProvider -up-|> IDataProvider
-    CachedDataProvider -up-|> IDataProvider
-    APIDataProvider -up-> APIClient : uses
-    CachedDataProvider -down-> CachedWeatherHistory
-    CachedDataProvider -up-> APIDataProvider : fallback
-
+    HistoricalWeatherService .up.|> IWeatherService
+    DailyWeatherService .up.|> IWeatherService
+    HourlyWeatherService .up.|> IWeatherService
+    CurrentWeatherService .up.|> IWeatherService
+    WeatherServiceFactory .up.> HistoricalWeatherService : creates 
+    WeatherServiceFactory .up.> CurrentWeatherService : creates 
+    WeatherServiceFactory .up.> DailyWeatherService : creates 
+    WeatherServiceFactory .up.> HourlyWeatherService : creates 
+    WeatherServiceFactory ..> WeatherServiceType : uses
+    
 }
 
 class APIClient << (C,orchid) Singleton >>
@@ -62,7 +96,45 @@ class APIClient << (C,orchid) Singleton >>
     + GetAsync<T>(string url) : Task<T>
     
 }
+package DataProviders
+{
+    interface IDataProvider << (I,orchid) Strategy >> {
+    +GetWeatherData(LocationData location, WeatherServiceType serviceType) : Task<WeatherData>
+    }
+    together {
+        class APIDataProvider
+        {
+            - _client : APIClient
+            + APIDataProvider()
+            + GetWeatherData(LocationData location, WeatherServiceType serviceType) : Task<WeatherData>
+            + BuildUrl((LocationData location, WeatherServiceType serviceType) : string
+        }
+        
+        class CachedDataProvider
+        {
+            - _cache : CachedWeatherHistory 
+            - _fallbackProvider : IDataProvider
+            - _cacheValidityMinutes : int
+            + CachedDataProvider(IDataProvider fallbackProvider, int cacheValidityMinutes)
+            + GetWeatherData(LocationData location, WeatherServiceType serviceType) : Task<WeatherData>
+        }
+    }
+    APIDataProvider .up.|> IDataProvider
+    CachedDataProvider .up.|> IDataProvider
+    CachedDataProvider o-up- IDataProvider : fallback
+    APIDataProvider ..> APIClient : uses
+    APIDataProvider ..> WeatherServiceType : uses
+    APIDataProvider .up.> OpenMeteoEndpoints : uses
+}
 
+HistoricalWeatherService o-up- IDataProvider
+DailyWeatherService o-up- IDataProvider
+HourlyWeatherService o-up- IDataProvider
+CurrentWeatherService o-up- IDataProvider
+WeatherServiceFactory o-up- IDataProvider
+ 
+
+package Location {
 class GeolocationService
 {
     - _client : APIClient
@@ -70,8 +142,25 @@ class GeolocationService
     + GetLocation(string cityName) : Task<LocationData>
 }
 
-GeolocationService -up-> APIClient : uses
+class LocationData
+{
+    + latitude : double
+    + longitude : double
+    + LocationData()  
+    + LocationData(double lat, double lon) : LocationData
+}
 
+class GeocodingResponse
+{
+    + results : List<LocationData>
+}
+
+GeolocationService ..> GeocodingResponse : deserializes
+GeolocationService ..> APIClient : uses
+GeocodingResponse o-- LocationData
+}  
+package WeatherData
+{
 
 together {
     abstract class WeatherData
@@ -162,82 +251,30 @@ together {
         + timezone : string
         + daily : DailyWeatherData
     }
-    
-    DailyWeatherData -up-|> WeatherData : inherits
-    HourlyWeatherData -up-|> WeatherData : inherits
-    CurrentWeatherData -up-|> WeatherData : inherits
-    HistoricalWeatherData -up-|> DailyWeatherData : inherits
+    HourlyWeatherResponse *-- HourlyWeatherData
+    CurrentWeatherResponse *-- CurrentWeatherData
+    DailyWeatherResponse *-- DailyWeatherData
+    HistoricalWeatherResponse *-- DailyWeatherData
+    HourlyWeatherData --|> WeatherData
+    CurrentWeatherData --|> WeatherData
+    HistoricalWeatherData --|> WeatherData
+    DailyWeatherData --|> WeatherData
+    APIDataProvider ..> HourlyWeatherResponse : deserializes
+    APIDataProvider ..> CurrentWeatherResponse : deserializes 
+    APIDataProvider ..> HistoricalWeatherResponse : deserializes
+    APIDataProvider ..> DailyWeatherResponse : deserializes
+    CurrentWeatherData ..> WeatherCodeHelper : uses
+    HourlyWeatherData ..> WeatherCodeHelper : uses
 }
-
-class LocationData
+}
+package Memento 
 {
-    + laltitude : double
-    + longtitude : double
-    + LocationData(double lat, double lon) : LocationData
-}
-
-class GeocodingResponse
-{
-    + results : List<LocationData>?
-}
-
-together {
-    class CurrentWeatherService
-    {
-        - _provider : IDataProvider
-        + CurrentWeatherService(IDataProvider provider)
-        +FetchWeather(LocationData location) : Task<WeatherData>
-    }
-    
-    class DailyWeatherService
-    {
-        - _provider : IDataProvider
-        + DailyWeatherService(IDataProvider provider)
-        +FetchWeather(LocationData location) : Task<WeatherData>
-    }
-    
-    class HourlyWeatherService
-    {
-       - _provider : IDataProvider
-        + HourlyWeatherService(IDataProvider provider)
-        +FetchWeather(LocationData location) : Task<WeatherData>
-    }
-    
-    class HistoricalWeatherService
-    {
-        - _provider : IDataProvider
-        + HistoricalWeatherService(IDataProvider provider)
-        +FetchWeather(LocationData location) : Task<WeatherData>
-    }
-    
-    DailyWeatherService -up-|> IWeatherService : implements
-    HourlyWeatherService -up-|> IWeatherService : implements
-    CurrentWeatherService -up-|> IWeatherService : implements
-    HistoricalWeatherService -up-|> IWeatherService : implements
-    DailyWeatherService ..> IDataProvider : uses
-    HourlyWeatherService ..> IDataProvider : uses
-    CurrentWeatherService ..> IDataProvider : uses
-    HistoricalWeatherService ..> IDataProvider : uses
-}
-
-class WeatherServiceFactory << (C,orchid) Factory >>
-{
-    - _provider : IDataProvider
-    + WeatherServiceFactory(IDataProvider provider)
-    +CreateWeatherService(WeatherServiceType type) : IWeatherService
-}
-
-WeatherServiceFactory -up-> CurrentWeatherService : creates 
-WeatherServiceFactory -up-> DailyWeatherService : creates 
-WeatherServiceFactory -up-> HourlyWeatherService : creates 
-WeatherServiceFactory -up-> HistoricalWeatherService : creates
-
-
 class WeatherHistoryMemento << (C,orchid) Memento >> {
     +Data : WeatherData
     +Timestamp : DateTime
     +Location : LocationData
-    + WeatherHistoryMemento(WeatherData data, LocationData location)
+    +ServiceType : WeatherServiceType
+    + WeatherHistoryMemento(WeatherData data, LocationData location, WeatherServiceType service)
 }
 
 class CachedWeatherHistory
@@ -249,35 +286,64 @@ class CachedWeatherHistory
     + GetLocationKey(LocationData location, WeatherServiceType serviceType) : string
     + CleanOldData(string key) : void
 }
+CachedDataProvider *-- CachedWeatherHistory
+CachedWeatherHistory *-- WeatherHistoryMemento : keeps
+WeatherHistoryMemento ..> WeatherServiceType : uses
+}
 
-CachedWeatherHistory --> WeatherHistoryMemento : keeps
 
+
+
+class WeatherAlert 
+{
+    #_locationName string
+    #_isEnabled bool
+    #WeatherAlert(string LocationName)
+    #CheckCondition(WeatherData data) : bool
+    #GetAlertMessage(WeatherData data) : string
+    #SendAlert : void
+    +Update : void
+}
 together {
     class TemperatureAlert
     {
-    - _city : string
-    - _temperatureThreshold : double
-    + TemperatureAlert(string city, double threshold)
-    + void Update(WeatherData data)
+    - _threshold : double
+    - _isAbove : bool
+    + TemperatureAlert(string location, double threshold, bool isAbove)
+    #CheckCondition(WeatherData data) : bool
+    #GetAlertMessage(WeatherData data) : string
     }
     class ThunderstormAlert
     {
-    - _city : string
-    - _thunderstormPresence : bool
-    + ThunderstormAlert(string city, bool presence)
-    + void Update(WeatherData data)
+    + ThunderstormAlert(string location)
+    #CheckCondition(WeatherData data) : bool
+    #GetAlertMessage(WeatherData data) : string
     }
     class FloodAlert
     {
-    - _city : string
-    - _flood : double
-    + FloodAlert(string city, double flood)
-    + void Update(WeatherData data)
+    + FloodAlert(string location)
+    #CheckCondition(WeatherData data) : bool
+    #GetAlertMessage(WeatherData data) : string
     }
-    
-    TemperatureAlert -up-|> IWeatherObserver 
-    ThunderstormAlert -up-|> IWeatherObserver
-    FloodAlert -up-|> IWeatherObserver
+    class SnowAlert
+    {
+        + SnowAlert(string location)
+        #CheckCondition(WeatherData data) : bool
+        #GetAlertMessage(WeatherData data) : string
+    }
+    class FogAlert
+    {
+        + FogAlert(string location)
+        #CheckCondition(WeatherData data) : bool
+        #GetAlertMessage(WeatherData data) : string
+    }
+    class GlazedFrostAlert
+    {
+        + GlazedFrostAlert(string location)
+        #CheckCondition(WeatherData data) : bool
+        #GetAlertMessage(WeatherData data) : string
+    }
+
 
 }
 
@@ -306,5 +372,62 @@ class WatchedLocation
     + UpdateWeather(CurrentWeatherData current, DailyWeatherData forecast = null)
 }
 
+class WeatherReport
+{
+    + Title : string
+    + Type : ReportType
+    + Content : string
+    + GeneratedAt : DateTime 
+    + Location : LocationData
+    +WeatherReport(ReportType type)
+    +ToString() : string
+}
+
+interface IWeatherReportBuilder << (I,orchid) Builder >>
+{
+    + Reset(); : IWeatherReportBuilder
+    + SetLocation(LocationData location) : IWeatherReportBuilder
+    +AddCurrentConditions(CurrentWeatherData data) : IWeatherReportBuilder
+    +AddForecast(WeatherData data) : IWeatherReportBuilder
+    +AddHistoricalData(HistoricalWeatherData data) : IWeatherReportBuilder
+    +AddMinMaxTemperatures() : IWeatherReportBuilder
+    +GetResult() : WeatherReport
+}
+
+class WeatherReportBuilder 
+{
+    - _report : WeatherReport
+    - _weatherData : List<WeatherData>
+    - _location : LocationData
+    + WeatherReportBuilder(ReportType type)
+    + Reset(); : IWeatherReportBuilder
+    + SetLocation(LocationData location) : IWeatherReportBuilder
+    +AddCurrentConditions(CurrentWeatherData data) : IWeatherReportBuilder
+    +AddForecast(WeatherData data) : IWeatherReportBuilder
+    +AddHistoricalData(HistoricalWeatherData data) : IWeatherReportBuilder
+    +AddMinMaxTemperatures() : IWeatherReportBuilder
+    +GetResult() : WeatherReport
+}
+
+class ReportDirector
+{
+    - _builder : IWeatherReportBuilder
+    + ReportDirector(IWeatherReportBuilder builder)
+    + BuildCurrentConditionsReport(LocationData location, CurrentWeatherData data) : WeatherReport
+    + BuildWeeklyForecastReport(LocationData location, DailyWeatherData data) : WeatherReport
+    + BuildHourlyForecastReport(LocationData location, HourlyWeatherData data) : WeatherReport
+    + BuildHistoricalReport(LocationData location, HistoricalWeatherData data) : WeatherReport
+    + BuildComparisonReport(List<LocationData> locations, List<WeatherData> data) : WeatherReport
+}
+
+class WeatherForecastApp << (C,orchid) Facade >>
+{
+    - _factory : WeatherServiceFactory
+    - _geoService : GeoLocationService
+    - _watchedLocations : List<WatchedLocation>
+    - _reportDirector : ReportDirector
+    - _cachedProvider : CachedDataProvider
+    + WeatherForecastApp()
+}
 
 @enduml

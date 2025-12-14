@@ -7,7 +7,7 @@ public class HourlyWeatherData : WeatherData
     public double[] rain { get; set; } 
     public double[] snowfall { get; set; }
     public int[] weather_code { get; set; }
-    public int[] cloud_cover { get; set; }
+    public double[] cloud_cover { get; set; }
     public double[] wind_speed_10m { get; set; }
 
     public override string GetSummary()

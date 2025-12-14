@@ -16,7 +16,7 @@ public class CachedWeatherHistory
         {
             _history[key] = new List<WeatherHistoryMemento>();
         }
-        var memento = new WeatherHistoryMemento(data, location);
+        var memento = new WeatherHistoryMemento(data, location, serviceType);
         _history[key].Add(memento);
         
         CleanOldData(key);

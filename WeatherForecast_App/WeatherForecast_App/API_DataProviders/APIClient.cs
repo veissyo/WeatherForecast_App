@@ -21,7 +21,7 @@ public class APIClient
         return _instance;
     }
     
-    public async Task<T?> GetAsync<T>(string url)
+    public async Task<T> GetAsync<T>(string url)
     {
         try
         {

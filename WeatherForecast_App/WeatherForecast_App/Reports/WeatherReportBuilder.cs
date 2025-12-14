@@ -90,17 +90,6 @@ public class WeatherReportBuilder : IWeatherReportBuilder
         return this;
     }
 
-    public IWeatherReportBuilder AddDaysAboveThreshold(double threshold)
-    {
-        var dailyData = _weatherData.OfType<DailyWeatherData>().FirstOrDefault();
-        if (dailyData != null)
-        {
-            var count = dailyData.temperature_2m_max.Count(t => t > threshold);
-            _report.Content += $"\nDays with temperature above {threshold}°C: {count}\n";
-        }
-        return this;
-    }
-
     public WeatherReport GetResult()
     {
         return _report;
