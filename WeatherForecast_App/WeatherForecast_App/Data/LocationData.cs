@@ -5,10 +5,7 @@ public class LocationData
     public double longitude { get; set; }
     public double latitude { get; set; }
     
-    public LocationData()
-    {
-        
-    }
+    public LocationData() { }
     
     public LocationData(double lat, double lon)
     {

@@ -1,13 +1,8 @@
 ﻿namespace WeatherForecast_App;
 
-public class GeoLocationService
+public class GeoLocationService()
 {
-    private readonly APIClient _client;
-
-    public GeoLocationService()
-    {
-        _client = APIClient.GetInstance();
-    }
+    private readonly APIClient _client = APIClient.GetInstance();
     
     public async Task<LocationData> GetLocation(string cityName)
     {
