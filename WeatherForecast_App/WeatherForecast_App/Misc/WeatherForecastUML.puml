@@ -1,7 +1,6 @@
 ﻿@startuml
 top to bottom direction
 hide empty members
-skinparam classAttributeIconSize 0
 skinparam packageStyle rectangle
 skinparam linetype ortho
 
@@ -29,7 +28,7 @@ enum ReportType
     HISTORICAL_ANALYSIS
     LOCATION_COMPARISON
 }
-package WeatherServices #Lavender
+package "F A C T O R Y" #Lavender
 {
     enum WeatherServiceType
     {
@@ -90,7 +89,8 @@ package WeatherServices #Lavender
     WeatherServiceFactory ..> WeatherServiceType : uses
     
 }
-
+package "S I N G L E T O N" #Lavender
+{
 class APIClient << (C,orchid) Singleton >>
 {
     - _instance : APIClient
@@ -100,7 +100,9 @@ class APIClient << (C,orchid) Singleton >>
     + GetAsync<T>(string url) : Task<T>
     
 }
-package DataProviders #Lavender
+}
+
+package "S T R A T E G Y" #Lavender
 {
     interface IDataProvider << (I,orchid) Strategy >> {
     +GetWeatherData(LocationData location, WeatherServiceType serviceType) : Task<WeatherData>
@@ -138,7 +140,7 @@ CurrentWeatherService o-up- IDataProvider
 WeatherServiceFactory o-up- IDataProvider
  
 
-package Locations #Lavender {
+package "L O C A T I O N" {
 class GeolocationService
 {
     - _client : APIClient
@@ -163,7 +165,7 @@ GeolocationService ..> GeocodingResponse : deserializes
 GeolocationService ..> APIClient : uses
 GeocodingResponse o-- LocationData
 }  
-package WeatherModels #Lavender
+package "D A T A"
 {
 
 together {
@@ -269,11 +271,11 @@ together {
     APIDataProvider ..> HistoricalWeatherResponse : deserializes
     APIDataProvider ..> DailyWeatherResponse : deserializes
     CurrentWeatherData ..> WeatherCodeHelper 
-    HourlyWeatherData ..> WeatherCodeHelper : uses
+    HourlyWeatherData ..> WeatherCodeHelper 
     
 }
 }
-package Memento  #Lavender
+package "M E M E N T O" #Lavender
 {
 class WeatherHistoryMemento << (C,orchid) Memento >> {
     +Data : WeatherData
@@ -299,7 +301,7 @@ WeatherHistoryMemento o-- LocationData
 WeatherHistoryMemento o-- WeatherData 
 }
 
-package Observer  #Lavender
+package "O B S E R V E R" #Lavender
 {
 interface IWeatherObserver << (I,orchid) Observer >>
 {
@@ -333,7 +335,7 @@ WatchedLocation o-- LocationData
 
 }
 
-package WeatherAlerts #Lavender
+package "A L E R T S"
 {
 class WeatherAlert 
 {
@@ -407,7 +409,7 @@ ThunderstormAlert .down.> WeatherCodeHelper
 }
 
 
-package WeatherReport #Lavender
+package "B U I L D E R" #Lavender
 {
 class WeatherReport
 {
@@ -464,7 +466,8 @@ ReportDirector o-- IWeatherReportBuilder
 WeatherReportBuilder o-- WeatherData
 WeatherReportBuilder o-- LocationData
 }
-
+package "F A C A D E"  #Lavender
+{
 class WeatherForecastApp << (C,orchid) Facade >>
 {
     - _factory : WeatherServiceFactory
@@ -475,10 +478,23 @@ class WeatherForecastApp << (C,orchid) Facade >>
     + WeatherForecastApp()
 }
 
+}
+
 WeatherForecastApp *-down- WeatherServiceFactory  
 WeatherForecastApp *-down- GeolocationService 
 WeatherForecastApp *-down- ReportDirector 
 WeatherForecastApp *-down- CachedDataProvider 
 WeatherForecastApp o-down- WatchedLocation 
+ReportDirector ..> CurrentWeatherData
+ReportDirector ..> DailyWeatherData
+ReportDirector ..> HourlyWeatherData
+ReportDirector ..> HistoricalWeatherData
+GeolocationService ..> OpenMeteoEndpoints 
+WeatherData ..> LocationData 
+IWeatherService ..> LocationData
+IDataProvider ..> LocationData
+
+
+
 
 @enduml

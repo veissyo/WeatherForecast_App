@@ -89,7 +89,6 @@ public class WeatherForecastApp
         }
     }
 
-    // ✅ DODANE - Dane historyczne
     public async Task<HistoricalWeatherData> GetHistoricalWeather(string cityName)
     {
         try
@@ -180,7 +179,6 @@ public class WeatherForecastApp
         }
     }
 
-    // Tworzy raport
     public async Task<WeatherReport?> CreateReport(ReportType type, string cityName)
     {
         try
@@ -205,13 +203,13 @@ public class WeatherForecastApp
                     var historical = await GetHistoricalWeather(cityName);
                     return historical != null ? _reportDirector.BuildHistoricalReport(location, historical) : null;
                 default:
-                    Console.WriteLine($"✗ Nieobsługiwany typ raportu: {type}");
+                    Console.WriteLine($"Nieobsługiwany typ raportu: {type}");
                     return null;
             }
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"✗ Błąd tworzenia raportu: {ex.Message}");
+            Console.WriteLine($"Błąd tworzenia raportu: {ex.Message}");
             return null;
         }
     }
@@ -266,9 +264,7 @@ public class WeatherForecastApp
     // Wyświetla menu
     public void ShowMenu()
     {
-        Console.WriteLine("\n" + new string('=', 60));
-        Console.WriteLine("          🌦️  WEATHER APPLICATION - MENU  🌦️");
-        Console.WriteLine(new string('=', 60));
+        Console.WriteLine("WEATHER APPLICATION - MENU");
         Console.WriteLine("1. Sprawdź aktualną pogodę");
         Console.WriteLine("2. Prognoza na 7 dni");
         Console.WriteLine("3. Prognoza godzinowa (24h)");        
