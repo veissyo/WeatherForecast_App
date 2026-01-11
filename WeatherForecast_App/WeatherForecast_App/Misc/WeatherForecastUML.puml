@@ -12,7 +12,6 @@ class WeatherCodeHelper
     +GetDescription(int code) : string
     +IsThunderstorm(int code) : bool
     +IsHeavyRain(int code) : bool
-    +IsGlazedFrost(int code) : bool
     +IsFog(int code) : bool
     +IsSnow(int code) : bool  
 }
@@ -25,13 +24,10 @@ class OpenMeteoEndpoints
 }
 enum ReportType
 {
-    CURRENT_CONDITIONS
-    WEEKLY_FORECAST
-    HOURLY_FORECAST
-    HISTORICAL_ANALYSIS
-    LOCATION_COMPARISON
+   LOCATION_COMPARISON
+   WEEKLY_ALERTS
 }
-package "F A C T O R Y" #Lavender
+package "W E A T H E R   _   S E R V I C E S"
 {
     enum WeatherServiceType
     {
@@ -92,7 +88,7 @@ package "F A C T O R Y" #Lavender
     WeatherServiceFactory ..> WeatherServiceType : uses
     
 }
-package "S I N G L E T O N" #Lavender
+package "S I N G L E T O N - A P I _ C L I E N T" #Lavender
 {
 class APIClient << (C,orchid) Singleton >>
 {
@@ -105,7 +101,7 @@ class APIClient << (C,orchid) Singleton >>
 }
 }
 
-package "S T R A T E G Y" #Lavender
+package "S T R A T E G Y - D A T A _ P R O V I D E R" #Lavender
 {
     interface IDataProvider << (I,orchid) Strategy >> {
     +GetWeatherData(LocationData location, WeatherServiceType serviceType) : Task<WeatherData>
@@ -278,7 +274,7 @@ together {
     
 }
 }
-package "M E M E N T O" #Lavender
+package "M E M E N T O - C A C H E" #Lavender
 {
 class WeatherHistoryMemento << (C,orchid) Memento >> {
     +Data : WeatherData
@@ -304,7 +300,7 @@ WeatherHistoryMemento o-- LocationData
 WeatherHistoryMemento o-- WeatherData 
 }
 
-package "O B S E R V E R" #Lavender
+package "O B S E R V E R - W A T C H E D _ L O C A T I O N" #Lavender
 {
 interface IWeatherObserver << (I,orchid) Observer >>
 {
@@ -412,7 +408,7 @@ ThunderstormAlert .down.> WeatherCodeHelper
 }
 
 
-package "B U I L D E R" #Lavender
+package "B U I L D E R - R E P O R T S" #Lavender
 {
 class WeatherReport
 {
@@ -429,10 +425,15 @@ interface IWeatherReportBuilder << (I,orchid) Builder >>
 {
     + Reset(); : IWeatherReportBuilder
     + SetLocation(LocationData location) : IWeatherReportBuilder
-    +AddCurrentConditions(CurrentWeatherData data) : IWeatherReportBuilder
-    +AddForecast(WeatherData data) : IWeatherReportBuilder
-    +AddHistoricalData(HistoricalWeatherData data) : IWeatherReportBuilder
-    +AddMinMaxTemperatures() : IWeatherReportBuilder
+    + SetTitle(string title) : IWeatherReportBuilder
+    + SetType(ReportType type) : IWeatherReportBuilder
+    +AddComparisonHeader(string city1, string city2, int days) : IWeatherReportBuilder
+    + AddLocationWeatherSummary(string cityName, LocationData location, DailyWeatherData data) : IWeatherReportBuilder
+    +AddComparisonSummary(DailyWeatherData data1, DailyWeatherData data2, string city1, string city2) : IWeatherReportBuilder
+    +AddAlertsHeader(string cityName, int days, int alertCount) : IWeatherReportBuilder
+    +AddDailyConditions(DailyWeatherData data) : IWeatherReportBuilder
+    +AddAlertsSummary(List<WeatherAlert> alerts) : IWeatherReportBuilder
+    + AddPotentialHazards(DailyWeatherData data) : IWeatherReportBuilder
     +GetResult() : WeatherReport
 }
 
@@ -442,50 +443,155 @@ class WeatherReportBuilder
     - _weatherData : List<WeatherData>
     - _location : LocationData
     + WeatherReportBuilder(ReportType type)
-    + Reset(); : IWeatherReportBuilder
-    + SetLocation(LocationData location) : IWeatherReportBuilder
-    +AddCurrentConditions(CurrentWeatherData data) : IWeatherReportBuilder
-    +AddForecast(WeatherData data) : IWeatherReportBuilder
-    +AddHistoricalData(HistoricalWeatherData data) : IWeatherReportBuilder
-    +AddMinMaxTemperatures() : IWeatherReportBuilder
-    +GetResult() : WeatherReport
+   + Reset(); : IWeatherReportBuilder
+       + SetLocation(LocationData location) : IWeatherReportBuilder
+       + SetTitle(string title) : IWeatherReportBuilder
+       + SetType(ReportType type) : IWeatherReportBuilder
+       +AddComparisonHeader(string city1, string city2, int days) : IWeatherReportBuilder
+       + AddLocationWeatherSummary(string cityName, LocationData location, DailyWeatherData data) : IWeatherReportBuilder
+       +AddComparisonSummary(DailyWeatherData data1, DailyWeatherData data2, string city1, string city2) : IWeatherReportBuilder
+       +AddAlertsHeader(string cityName, int days, int alertCount) : IWeatherReportBuilder
+       +AddDailyConditions(DailyWeatherData data) : IWeatherReportBuilder
+       +AddAlertsSummary(List<WeatherAlert> alerts) : IWeatherReportBuilder
+       + AddPotentialHazards(DailyWeatherData data) : IWeatherReportBuilder
+       +GetResult() : WeatherReport
+       - CalculateAverageTemp(DailyWeatherData data) : double
 }
 
 class ReportDirector
 {
     - _builder : IWeatherReportBuilder
     + ReportDirector(IWeatherReportBuilder builder)
-    + BuildCurrentConditionsReport(LocationData location, CurrentWeatherData data) : WeatherReport
-    + BuildWeeklyForecastReport(LocationData location, DailyWeatherData data) : WeatherReport
-    + BuildHourlyForecastReport(LocationData location, HourlyWeatherData data) : WeatherReport
-    + BuildHistoricalReport(LocationData location, HistoricalWeatherData data) : WeatherReport
-    + BuildComparisonReport(List<LocationData> locations, List<WeatherData> data) : WeatherReport
+    + BuildLocationComparisonReport(LocationData location1, LocationData location2, 
+              DailyWeatherData data1, DailyWeatherData data2, string city1, string city2) : WeatherReport
+    +  BuildWeeklyAlertsReport(LocationData location, DailyWeatherData data, 
+              string cityName, List<WeatherAlert> alerts) : WeatherReport
 }
 WeatherReportBuilder ..|> IWeatherReportBuilder
-WeatherReportBuilder *-- WeatherReport
+WeatherReportBuilder o-- WeatherReport
 WeatherReport ..> ReportType : uses
 WeatherReport o-- LocationData
 ReportDirector o-- IWeatherReportBuilder
 WeatherReportBuilder o-- WeatherData
 WeatherReportBuilder o-- LocationData
 }
+
+package "S T R A T E G Y - A N A L Y S I S" #Lavender 
+{
+    interface IWeatherAnalysis
+    {
+        + Analyze(DailyWeatherData data) : string
+    }
+    
+    class WeatherAnalyzer
+    {
+        - _strategy : IWeatherAnalysis
+        + SetStrategy(IWeatherAnalysis strategy) : void
+        + PerformAnalysis(DailyWeatherData data) : string
+    }
+    
+    class Precipitation
+    {
+        + Analyze(DailyWeatherData data) : string
+    }
+    
+    class TemperatureTrend
+    {
+            + Analyze(DailyWeatherData data) : string
+            - CalculateTrend(double[] temps) : string
+    }
+}
+
+WeatherAnalyzer o--> IWeatherAnalysis
+ WeatherAnalyzer ..> DailyWeatherData  
+Precipitation ..|> IWeatherAnalysis
+TemperatureTrend ..|> IWeatherAnalysis
+Precipitation ..> DailyWeatherData                                
+TemperatureTrend ..> DailyWeatherData  
+
+
+
+package "I M P O R T / E X P O R T" 
+{
+    class JSONDataExporter
+    {
+        - _options : JsonSerializerOptions
+        + JSONDataExporter()
+        + ExportWeatherData(WeatherData data, string filePath, string cityName) : Task
+        + ExportWatchedLocations(Dictionary<string, WatchedLocation> locations, string filePath) : Task
+        + ExportWeatherReport(WeatherReport report, string filePath) : Task
+        
+    }
+    
+    class JSONDataImporter
+    {
+        + ImportWeatherData(string filePath) : Task<WeatherData?>
+        - DeserializeHistoricalData(JsonElement weatherDataElement, double latitude, double longitude, string timezone) : HistoricalWeatherData
+        + ImportWatchedLocations(string filePath) : Task<Dictionary<string, LocationData>?>
+    }
+}
+
+JSONDataExporter ..> WeatherData
+JSONDataExporter ..> CurrentWeatherData
+JSONDataExporter ..> DailyWeatherData
+JSONDataExporter ..> HistoricalWeatherData
+JSONDataExporter ..> HourlyWeatherData
+JSONDataExporter ..> WatchedLocation
+JSONDataExporter ..> WeatherAlert
+JSONDataExporter ..> WeatherReport
+JSONDataExporter ..> LocationData
+
+JSONDataImporter ..> WeatherData
+JSONDataImporter ..> CurrentWeatherData
+JSONDataImporter ..> DailyWeatherData
+JSONDataImporter ..> HistoricalWeatherData
+JSONDataImporter ..> HourlyWeatherData
+JSONDataImporter ..> LocationData
+
+
 package "F A C A D E"  #Lavender
 {
 class WeatherForecastApp << (C,orchid) Facade >>
 {
-    - _factory : WeatherServiceFactory
+    - _dataProvider : IDataProvider
+    - _serviceFactory : WeatherServiceFactory
     - _geoService : GeoLocationService
-    - _watchedLocations : List<WatchedLocation>
-    - _reportDirector : ReportDirector
-    - _cachedProvider : CachedDataProvider
+    - _watchedLocations : Dictionary<string, WatchedLocation>
+    - _analyzer : WeatherAnalyzer
+    - _exporter : JSONDataExporter
+    - _importer : JSONDataImporter
+    - _lastWeatherData : WeatherData
+    -  _lastCityName : string
+    - _lastReport : WeatherReport
     + WeatherForecastApp()
+    + ShowMenu() 
+    + GetWeatherForCity(string cityName) : Task<CurrentWeatherData?> 
+    + GetForecast(string cityName, int days) : Task<DailyWeatherData?> 
+    +  GetHourlyForecast(string cityName) : Task<HourlyWeatherData?>
+    + GetHistoricalWeather(string cityName) : Task<HistoricalWeatherData?> 
+    +  AddWatchedLocation(string cityName) :  Task<WatchedLocation?>
+    + AddAlertToLocation(string cityName, WeatherAlert alert) : Task
+    + UpdateAllWatchedLocations() : Task
+    + ShowWatchedLocations() 
+    + RemoveWatchedLocation(string cityName)
+    + PerformPrecipitationAnalysis(string cityName) : Task
+    + PerformTemperatureTrendAnalysis(string cityName) : Task
+    + GenerateLocationComparisonReport(string city1, string city2) : Task
+    + GenerateWeeklyAlertsReport(string cityName) : Task
+    +  GetWatchedLocationNames() : List<string>
+    + ExportLastWeatherData() : Task
+    + ExportWatchedLocations() : Task
+    + ExportLastReport() : Task
+    + ImportWeatherData(string filePath) : Task
+    + ImportWatchedLocations(string filePath) : Task
+  
 }
 
 }
 
 WeatherForecastApp *-down- WeatherServiceFactory  
 WeatherForecastApp *-down- GeolocationService 
-WeatherForecastApp *-down- ReportDirector 
+ WeatherForecastApp ..> ReportDirector 
 WeatherForecastApp *-down- CachedDataProvider 
 WeatherForecastApp o-down- WatchedLocation 
 ReportDirector ..> CurrentWeatherData
@@ -496,7 +602,21 @@ GeolocationService ..> OpenMeteoEndpoints
 WeatherData ..> LocationData 
 IWeatherService ..> LocationData
 IDataProvider ..> LocationData
+WeatherForecastApp *-- WeatherAnalyzer
+WeatherForecastApp ..> Precipitation
+WeatherForecastApp ..> TemperatureTrend
+WeatherForecastApp *-- JSONDataExporter
+WeatherForecastApp *-- JSONDataImporter
+WeatherForecastApp o-- WeatherReport   
+WeatherForecastApp o-- WeatherData   
+ WeatherForecastApp o-- IDataProvider 
+ 
+ class Program
+ {
+    +Main() : Task 
+ }
 
+Program o-- WeatherForecastApp     
 
 
 

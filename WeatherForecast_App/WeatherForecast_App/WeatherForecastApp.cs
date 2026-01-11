@@ -2,7 +2,7 @@
 
 public class WeatherForecastApp
 {
-private readonly GeoLocationService _geoService;
+    private readonly GeoLocationService _geoService;
     private readonly IDataProvider _dataProvider;
     private readonly WeatherServiceFactory _serviceFactory;
     private readonly Dictionary<string, WatchedLocation> _watchedLocations;
