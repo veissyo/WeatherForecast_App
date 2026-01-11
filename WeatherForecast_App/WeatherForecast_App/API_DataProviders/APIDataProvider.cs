@@ -2,17 +2,19 @@
 
 public class APIDataProvider : IDataProvider
 {
-    private APIClient _client;
+    private APIClient _client; // API client
 
     public APIDataProvider()
     {
-        _client = APIClient.GetInstance();
+        _client = APIClient.GetInstance(); // gets an existing instance of the client or creates a new one
     }
 
     public async Task<WeatherData> GetWeatherData(LocationData location, WeatherServiceType serviceType)
     {
         var url = BuildURL(location, serviceType);
 
+        // asks the client to send requests to the API, then parses the response into the appropriate data type
+        // responses are 'wrapped'
         switch (serviceType)
         {
             case WeatherServiceType.CURRENT:
@@ -22,7 +24,7 @@ public class APIDataProvider : IDataProvider
                     response.current.latitude = response.latitude;
                     response.current.longitude = response.longitude;
                     response.current.timezone = response.timezone;
-                    return response.current;
+                    return response.current; // returns CurrentWeatherData
                 }
                 throw new Exception("Failed to fetch current weather data. ;(");
             
@@ -33,7 +35,7 @@ public class APIDataProvider : IDataProvider
                     dailyResponse.daily.latitude = dailyResponse.latitude;
                     dailyResponse.daily.longitude = dailyResponse.longitude;
                     dailyResponse.daily.timezone = dailyResponse.timezone;
-                    return dailyResponse.daily;
+                    return dailyResponse.daily; // returns DailyWeatherData
                 }
                 throw new Exception("Failed to fetch daily weather data. ;(");
                 
@@ -44,7 +46,7 @@ public class APIDataProvider : IDataProvider
                     hourlyResponse.hourly.latitude = hourlyResponse.latitude;
                     hourlyResponse.hourly.longitude = hourlyResponse.longitude;
                     hourlyResponse.hourly.timezone = hourlyResponse.timezone;
-                    return hourlyResponse.hourly;
+                    return hourlyResponse.hourly; // returns HourlyWeatherData
                 }
                 throw new Exception("Failed to fetch hourly weather data. ;(");
                 
@@ -62,16 +64,17 @@ public class APIDataProvider : IDataProvider
                     historical.daily.latitude = historicalResponse.latitude;
                     historical.daily.longitude = historicalResponse.longitude;
                     historical.daily.timezone = historicalResponse.timezone;
-                    return historical;
+                    return historical; // returns HistoricalWeatherData
                 }
                 throw new Exception("Failed to fetch historical weather data");
             
             default:
-                throw new NotImplementedException("Unknown service type. Oops.");
+                throw new NotImplementedException("Unknown service type.");
         }
     }
 
-    private string BuildURL(LocationData location, WeatherServiceType serviceType)
+    // different URLs for different weather
+    private string BuildURL(LocationData location, WeatherServiceType serviceType) 
     {
         switch (serviceType)
         {

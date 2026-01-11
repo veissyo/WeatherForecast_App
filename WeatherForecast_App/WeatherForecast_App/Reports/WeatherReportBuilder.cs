@@ -33,22 +33,16 @@ public class WeatherReportBuilder : IWeatherReportBuilder
         return this;
     }
 
-    public IWeatherReportBuilder SetType(ReportType type)
-    {
-        _report.Type = type;
-        return this;
-    }
-
     public IWeatherReportBuilder AddComparisonHeader(string city1, string city2, int days)
     {
-        _report.Content += $"Comparing: {city1} vs {city2}\n";
+        _report.Content += $"Comparing: {city1} and {city2}\n";
         _report.Content += $"Period: {days} days\n\n";
         return this;
     }
 
     public IWeatherReportBuilder AddLocationWeatherSummary(string cityName, LocationData location, DailyWeatherData data)
     {
-        _report.Content += $"--- {cityName} ---\n";
+        _report.Content += $"{cityName}\n";
         _report.Content += $"Location: ({location.latitude:F2}, {location.longitude:F2})\n";
         
         var avg = CalculateAverageTemp(data);
@@ -63,7 +57,7 @@ public class WeatherReportBuilder : IWeatherReportBuilder
 
     public IWeatherReportBuilder AddComparisonSummary(DailyWeatherData data1, DailyWeatherData data2, string city1, string city2)
     {
-        _report.Content += "--- Comparison ---\n";
+        _report.Content += "Comparison\n";
         
         var avg1 = CalculateAverageTemp(data1);
         var avg2 = CalculateAverageTemp(data2);
@@ -76,7 +70,7 @@ public class WeatherReportBuilder : IWeatherReportBuilder
         _report.Content += $"Temperature difference: {Math.Abs(tempDiff):F1} C ";
         _report.Content += tempDiff > 0 ? $"({city1} warmer)\n" : $"({city2} warmer)\n";
         _report.Content += $"Rainfall difference: {Math.Abs(rainDiff):F1} mm ";
-        _report.Content += rainDiff > 0 ? $"({city1} wetter)\n" : $"({city2} wetter)\n";
+        _report.Content += rainDiff > 0 ? $"({city1} has higher precipitation)\n" : $"({city2} has higher precipitation)\n";
         
         return this;
     }
@@ -91,7 +85,7 @@ public class WeatherReportBuilder : IWeatherReportBuilder
 
     public IWeatherReportBuilder AddDailyConditions(DailyWeatherData data)
     {
-        _report.Content += "--- Daily Conditions ---\n";
+        _report.Content += "Daily Conditions\n";
         for (int i = 0; i < data.time.Length; i++)
         {
             _report.Content += $"{data.time[i]}: ";
@@ -105,7 +99,7 @@ public class WeatherReportBuilder : IWeatherReportBuilder
 
     public IWeatherReportBuilder AddAlertsSummary(List<WeatherAlert> alerts)
     {
-        _report.Content += "--- Alert Summary ---\n";
+        _report.Content += "Alert Summary\n";
         if (alerts.Count == 0)
         {
             _report.Content += "No alerts configured for this location.\n";
@@ -118,7 +112,6 @@ public class WeatherReportBuilder : IWeatherReportBuilder
                 var alertType = alert.GetType().Name.Replace("Alert", "");
                 _report.Content += $"{alertType}, ";
             }
-            _report.Content = _report.Content.TrimEnd(',', ' ') + "\n";
         }
         _report.Content += "\n";
         return this;
@@ -126,7 +119,7 @@ public class WeatherReportBuilder : IWeatherReportBuilder
 
     public IWeatherReportBuilder AddPotentialHazards(DailyWeatherData data)
     {
-        _report.Content += "--- Potential Hazards ---\n";
+        _report.Content += "Potential Hazards\n";
         
         var maxTemp = data.temperature_2m_max.Max();
         var minTemp = data.temperature_2m_min.Min();

@@ -13,18 +13,57 @@ public class TemperatureAlert : WeatherAlert
     
     protected override bool CheckCondition(WeatherData data)
     {
-        if (data is not CurrentWeatherData current) return false;
+        if (data is HourlyWeatherData hourly)
+        {
+            int hoursToCheck = Math.Min(6, hourly.weather_code.Length); // checks the next 6 hours 
 
-        if (_isAbove)
-            return current.temperature_2m > _threshold;
-        
-        return current.temperature_2m < _threshold;
+            for (int i = 0; i < hoursToCheck; i++)
+            {
+                double temp = hourly.temperature_2m[i];
+
+                if (_isAbove && temp > _threshold)
+                {
+                    return true;
+                }
+                else if (!_isAbove && temp < _threshold)
+                {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
     
     protected override string GetAlertMessage(WeatherData data)
     {
-        var current = (CurrentWeatherData)data;
-        var comparison = _isAbove ? "above" : "under";
-        return $"Temperature {comparison} {_threshold}°C! Current: {current.temperature_2m:F1}°C";
+        if (data is HourlyWeatherData hourly)
+        {
+            for (int i = 0; i < Math.Min(24, hourly.temperature_2m.Length); i++) // checking when exactly the temperature is expected
+            {
+                double temp = hourly.temperature_2m[i];
+                bool condition = _isAbove ? temp > _threshold : temp < _threshold;
+
+                if (condition)
+                {
+                    DateTime forecastTime = DateTime.Parse(hourly.time[i]);
+                    DateTime now = DateTime.Now;
+                    TimeSpan timeUntil = forecastTime - now; // checks how long until the temperature is expected
+
+                    if (timeUntil.TotalMinutes < 0)
+                    {
+                        continue;
+                    }
+                    
+                    string direction = _isAbove ? "ABOVE" : "BELOW";
+
+                    return
+                        $"TEMPERATURE {direction} {_threshold}°C FORECAST in {timeUntil.Hours}h {timeUntil.Minutes}min\n" +
+                        $"Expected time: {hourly.time[i]}\n" +
+                        $"Expected temperature: {temp:F1}°C";
+                }
+            }
+        }
+        string dir = _isAbove ? "above" : "below";
+        return $"Temperature {dir} {_threshold}°C detected!";
     }
 }

@@ -6,7 +6,7 @@ public class ReportDirector
 
     public ReportDirector(IWeatherReportBuilder builder)
     {
-        _builder = builder;
+        _builder = builder; // receives the builder
     }
 
     public WeatherReport BuildLocationComparisonReport(LocationData location1, LocationData location2, 
@@ -15,7 +15,6 @@ public class ReportDirector
         return _builder
             .Reset()
             .SetTitle("Weather Comparison Report")
-            .SetType(ReportType.LOCATION_COMPARISON)
             .SetLocation(location1)
             .AddComparisonHeader(city1, city2, data1.time.Length)
             .AddLocationWeatherSummary(city1, location1, data1)
@@ -30,7 +29,6 @@ public class ReportDirector
         return _builder
             .Reset()
             .SetTitle("Weekly Alerts Report")
-            .SetType(ReportType.WEEKLY_ALERTS)
             .SetLocation(location)
             .AddAlertsHeader(cityName, data.time.Length, alerts.Count)
             .AddDailyConditions(data)

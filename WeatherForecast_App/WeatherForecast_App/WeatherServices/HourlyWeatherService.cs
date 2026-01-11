@@ -12,6 +12,6 @@ public class HourlyWeatherService : IWeatherService
     public async Task<WeatherData> FetchWeather(LocationData location)
     {
         var weatherData = await _provider.GetWeatherData(location, WeatherServiceType.HOURLY_24);
-        return weatherData;
+        return weatherData; 
     }
 }

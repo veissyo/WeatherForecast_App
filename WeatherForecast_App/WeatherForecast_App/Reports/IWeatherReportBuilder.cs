@@ -5,7 +5,6 @@ public interface IWeatherReportBuilder
     IWeatherReportBuilder Reset();
     IWeatherReportBuilder SetLocation(LocationData location);
     IWeatherReportBuilder SetTitle(string title);
-    IWeatherReportBuilder SetType(ReportType type);
     IWeatherReportBuilder AddComparisonHeader(string city1, string city2, int days);
     IWeatherReportBuilder AddLocationWeatherSummary(string cityName, LocationData location, DailyWeatherData data);
     IWeatherReportBuilder AddComparisonSummary(DailyWeatherData data1, DailyWeatherData data2, string city1, string city2);

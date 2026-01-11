@@ -101,7 +101,7 @@ class APIClient << (C,orchid) Singleton >>
 }
 }
 
-package "S T R A T E G Y - D A T A _ P R O V I D E R" #Lavender
+package "D E C O R A T O R - D A T A _ P R O V I D E R" #Lavender
 {
     interface IDataProvider << (I,orchid) Strategy >> {
     +GetWeatherData(LocationData location, WeatherServiceType serviceType) : Task<WeatherData>
@@ -310,7 +310,6 @@ interface IWeatherObserver << (I,orchid) Observer >>
 interface ISubject
 {
     + Attach(IWeatherObserver observer) : void
-    + Detach(IWeatherObserver observer) : void
     +Notify() : void
 }
 
@@ -318,13 +317,12 @@ class WatchedLocation
 {
     + _locationData : LocationData
     - _observers : List<IWeatherObserver>
-    - _currentWeather : CurrentWeatherData
-    - _forecast : DailyWeatherData
+    - _hourlyForecast : HourlyWeatherData
     + WatchedLocation(LocationData location)
-    +Attach(IWeatherObserver observer) : void
-    +Detach(IWeatherObserver observer) : void
-    +Notify() : void
-    + UpdateWeather(CurrentWeatherData current, DailyWeatherData forecast = null)
+    + Attach(IWeatherObserver observer) : void
+    + Notify() : void
+    + UpdateWeather(HourlyWeatherData forecast)
+    + GetAlerts() : List<WeatherAlert> 
 }
 WatchedLocation o-- IWeatherObserver
 WatchedLocation ..|> ISubject
@@ -338,12 +336,11 @@ package "A L E R T S"
 {
 class WeatherAlert 
 {
-    #_locationName string
+    +_locationName string
     #_isEnabled bool
     #WeatherAlert(string LocationName)
     #CheckCondition(WeatherData data) : bool
     #GetAlertMessage(WeatherData data) : string
-    #SendAlert : void
     +Update : void
 }
 together {
@@ -379,29 +376,20 @@ together {
         #CheckCondition(WeatherData data) : bool
         #GetAlertMessage(WeatherData data) : string
     }
-    class GlazedFrostAlert
-    {
-        + GlazedFrostAlert(string location)
-        #CheckCondition(WeatherData data) : bool
-        #GetAlertMessage(WeatherData data) : string
-    }
 }
 WeatherAlert .up.|> IWeatherObserver
 FogAlert -up-|> WeatherAlert
 SnowAlert -up-|> WeatherAlert
-GlazedFrostAlert -up-|> WeatherAlert
 FloodAlert -up-|> WeatherAlert
 TemperatureAlert -up-|> WeatherAlert
 ThunderstormAlert -up-|> WeatherAlert
 FogAlert .up.> CurrentWeatherData  
 SnowAlert .up.> CurrentWeatherData 
-GlazedFrostAlert .up.> CurrentWeatherData 
 FloodAlert .up.> CurrentWeatherData 
 TemperatureAlert .up.> CurrentWeatherData 
 ThunderstormAlert .up.> CurrentWeatherData 
 FogAlert .down.> WeatherCodeHelper 
 SnowAlert .down.> WeatherCodeHelper 
-GlazedFrostAlert .down.> WeatherCodeHelper 
 FloodAlert .down.> WeatherCodeHelper
 TemperatureAlert .down.> WeatherCodeHelper
 ThunderstormAlert .down.> WeatherCodeHelper 
@@ -426,7 +414,6 @@ interface IWeatherReportBuilder << (I,orchid) Builder >>
     + Reset(); : IWeatherReportBuilder
     + SetLocation(LocationData location) : IWeatherReportBuilder
     + SetTitle(string title) : IWeatherReportBuilder
-    + SetType(ReportType type) : IWeatherReportBuilder
     +AddComparisonHeader(string city1, string city2, int days) : IWeatherReportBuilder
     + AddLocationWeatherSummary(string cityName, LocationData location, DailyWeatherData data) : IWeatherReportBuilder
     +AddComparisonSummary(DailyWeatherData data1, DailyWeatherData data2, string city1, string city2) : IWeatherReportBuilder
@@ -446,7 +433,6 @@ class WeatherReportBuilder
    + Reset(); : IWeatherReportBuilder
        + SetLocation(LocationData location) : IWeatherReportBuilder
        + SetTitle(string title) : IWeatherReportBuilder
-       + SetType(ReportType type) : IWeatherReportBuilder
        +AddComparisonHeader(string city1, string city2, int days) : IWeatherReportBuilder
        + AddLocationWeatherSummary(string cityName, LocationData location, DailyWeatherData data) : IWeatherReportBuilder
        +AddComparisonSummary(DailyWeatherData data1, DailyWeatherData data2, string city1, string city2) : IWeatherReportBuilder

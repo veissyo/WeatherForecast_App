@@ -27,7 +27,6 @@ public class JSONDataImporter
             var dataType = dataTypeElement.GetString();
             var weatherDataElement = root.GetProperty("WeatherData");
             var locationElement = root.GetProperty("Location");
-
             var latitude = locationElement.GetProperty("Latitude").GetDouble();
             var longitude = locationElement.GetProperty("Longitude").GetDouble();
             var timezone = locationElement.GetProperty("Timezone").GetString() ?? "UTC";

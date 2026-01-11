@@ -2,14 +2,14 @@
 
 public class WeatherServiceFactory
 {
-    private readonly IDataProvider _provider;
+    private readonly IDataProvider _provider; // a provider for the data (API or cache)
 
     public WeatherServiceFactory(IDataProvider provider)
     {
         _provider = provider;
     }
     
-    public IWeatherService CreateWeatherService(WeatherServiceType type)
+    public IWeatherService CreateWeatherService(WeatherServiceType type) // returns weather service based on type
     {
         switch (type)
         {

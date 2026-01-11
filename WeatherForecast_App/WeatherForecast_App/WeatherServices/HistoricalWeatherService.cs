@@ -11,12 +11,6 @@ public class HistoricalWeatherService : IWeatherService
         _provider = provider;
     }
 
-    public void SetDateRange(string[] start, string[] end)
-    {
-        _startDate = start;
-        _endDate = end;
-    }
-
     public async Task<WeatherData> FetchWeather(LocationData location)
     {
         var weatherData = await _provider.GetWeatherData(location, WeatherServiceType.HISTORICAL);

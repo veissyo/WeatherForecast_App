@@ -6,12 +6,12 @@ public class WeatherAnalyzer
 
     public void SetStrategy(IWeatherAnalysis strategy)
     {
-        _strategy = strategy;
+        _strategy = strategy; // sets a strategy for the analyzer
     }
 
     public string PerformAnalysis(DailyWeatherData data)
     {
-        return _strategy.Analyze(data);
+        return _strategy.Analyze(data); // calls the strategy's Analyze method
     }
 
 }

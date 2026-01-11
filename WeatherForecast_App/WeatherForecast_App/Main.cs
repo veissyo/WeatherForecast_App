@@ -148,7 +148,7 @@ class Program
             return;
         }
 
-        var forecast = await app.GetForecast(city, 7);
+        var forecast = await app.GetForecast(city);
         if (forecast != null)
         {
             Console.WriteLine("\n" + new string('=', 70));

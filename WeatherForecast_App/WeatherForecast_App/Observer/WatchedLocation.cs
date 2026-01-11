@@ -3,9 +3,8 @@
 public class WatchedLocation : ISubject 
 {
     public readonly LocationData _locationData;
-    private readonly List<IWeatherObserver> _observers;
-    private CurrentWeatherData? _currentWeather;
-    private DailyWeatherData? _forecast;
+    private readonly List<IWeatherObserver> _observers; // we can have multiple observers
+    private HourlyWeatherData? _hourlyForecast;
 
     public WatchedLocation(LocationData location)
     {
@@ -13,7 +12,7 @@ public class WatchedLocation : ISubject
         _observers = new List<IWeatherObserver>();
     }
 
-    public void Attach(IWeatherObserver observer)
+    public void Attach(IWeatherObserver observer) // registers an observer
     {
         if (!_observers.Contains(observer))
         {
@@ -21,28 +20,21 @@ public class WatchedLocation : ISubject
         }
     }
 
-    public void Detach(IWeatherObserver observer)
-    {
-        if (_observers.Remove(observer))
-        {
-            Console.WriteLine($"An observer has been deleted.");
-        }
-    }
+    // the detach method has not been implemented, as we don't need it. we remove the whole watched location, not just one observer.
+    
     public void Notify()
     {
-        if (_currentWeather == null) return;
-        Console.WriteLine($"\nNotifying {_observers.Count} observers...");
-        foreach (var observer in _observers)
+        if (_hourlyForecast == null) return;
+        //Console.WriteLine($"\nNotifying {_observers.Count} observers...");
+        foreach (var observer in _observers) // notify all observers
         {
-            observer.Update(_currentWeather);
+            observer.Update(_hourlyForecast); // update each observer (WeatherAlert)
         }
     }
 
-    public void UpdateWeather(CurrentWeatherData current, DailyWeatherData? forecast = null)
+    public void UpdateWeather(HourlyWeatherData forecast)
     {
-        _currentWeather = current;
-        _forecast = forecast;
-        
+        _hourlyForecast = forecast;
         Console.WriteLine($"Weather has been updated.");
         Notify();
     }

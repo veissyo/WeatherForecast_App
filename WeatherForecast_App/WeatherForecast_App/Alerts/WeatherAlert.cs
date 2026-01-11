@@ -13,17 +13,13 @@ public abstract class WeatherAlert : IWeatherObserver
     
     protected abstract bool CheckCondition(WeatherData data); 
     protected abstract string GetAlertMessage(WeatherData data);
-
-    protected void SendAlert(string message)
-    {
-        Console.WriteLine($"\n ALERT! For {_locationName}: {message}");
-    }
+    
     public void Update(WeatherData data)
     {
         if (!_isEnabled) return;
         if (CheckCondition(data))
         {
-            SendAlert(GetAlertMessage(data));
+            Console.WriteLine($"Alert for {_locationName}: {GetAlertMessage(data)}");
         }
     }
 }

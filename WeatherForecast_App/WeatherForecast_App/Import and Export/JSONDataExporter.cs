@@ -19,7 +19,7 @@ public class JSONDataExporter
 
     public async Task ExportWeatherData(WeatherData data, string filePath, string cityName)
     {
-        object exportData;
+        object exportData; // an object to hold the data to be serialized and exported
 
         if (data is CurrentWeatherData current)
         {
@@ -139,8 +139,8 @@ public class JSONDataExporter
             };
         }
 
-        var json = JsonSerializer.Serialize(exportData, _options);
-        await File.WriteAllTextAsync(filePath, json);
+        var json = JsonSerializer.Serialize(exportData, _options); // serializes the data to JSON
+        await File.WriteAllTextAsync(filePath, json); // writes the JSON to a file, async so it doesn't block the running program
         Console.WriteLine($"Weather data exported to: {filePath}");
     }
 
@@ -176,13 +176,9 @@ public class JSONDataExporter
             report.Title,
             report.Type,
             report.GeneratedAt,
-            Location = report.Location != null
-                ? new
-                {
+            Location = report.Location != null ? new {
                     report.Location.latitude,
-                    report.Location.longitude
-                }
-                : null,
+                    report.Location.longitude } : null,
             report.Content
         };
 
