@@ -3,6 +3,9 @@ top to bottom direction
 hide empty members
 skinparam packageStyle rectangle
 skinparam linetype ortho
+legend right
+Temat: 5 - Aplikacja pogodowa
+end legend
 
 class WeatherCodeHelper
 {

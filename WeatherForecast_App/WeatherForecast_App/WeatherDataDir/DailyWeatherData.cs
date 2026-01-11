@@ -16,11 +16,21 @@ public class DailyWeatherData : WeatherData
         var summary = $"Forecast for {time.Length} days:\n";
         for (int i = 0; i < time.Length; i++)
         {
-            summary += $"  {time[i]}: {temperature_2m_min[i]:F1}°C - {temperature_2m_max[i]:F1}°C, " +
+            var formattedDate = FormatDate(time[i]);
+            summary += $"  {formattedDate}: {temperature_2m_min[i]:F1}°C - {temperature_2m_max[i]:F1}°C, " +
                        $"Rainfall: {rain_sum[i]:F1}mm\n Snowfall: {snowfall_sum[i]:F1}mm\n"
             + $"Maximum wind speed: {wind_speed_10m_max[i]:F1}km/h \n";
         }
         return summary;
+    }
+    
+    private string FormatDate(string dateString)
+    {
+        if (DateTime.TryParse(dateString, out DateTime date))
+        {
+            return date.ToString("yyyy-MM-dd");
+        }
+        return dateString;
     }
 }
 

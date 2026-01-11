@@ -2,7 +2,7 @@
 
 public abstract class WeatherAlert : IWeatherObserver
 {
-    protected string _locationName;
+    public string _locationName;
     protected bool _isEnabled;
 
     protected WeatherAlert(string locationName)

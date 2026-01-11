@@ -9,43 +9,33 @@ public class ReportDirector
         _builder = builder;
     }
 
-    public WeatherReport BuildCurrentConditionsReport(LocationData location, CurrentWeatherData data)
+    public WeatherReport BuildLocationComparisonReport(LocationData location1, LocationData location2, 
+        DailyWeatherData data1, DailyWeatherData data2, string city1, string city2)
     {
-        return _builder.Reset().SetLocation(location).AddCurrentConditions(data).GetResult();
-    }
-
-    public WeatherReport BuildWeeklyForecastReport(LocationData location, DailyWeatherData data)
-    {
-        return _builder.Reset().SetLocation(location).AddForecast(data).AddMinMaxTemperatures()
+        return _builder
+            .Reset()
+            .SetTitle("Weather Comparison Report")
+            .SetType(ReportType.LOCATION_COMPARISON)
+            .SetLocation(location1)
+            .AddComparisonHeader(city1, city2, data1.time.Length)
+            .AddLocationWeatherSummary(city1, location1, data1)
+            .AddLocationWeatherSummary(city2, location2, data2)
+            .AddComparisonSummary(data1, data2, city1, city2)
             .GetResult();
     }
-    
-    public WeatherReport BuildHourlyForecastReport(LocationData location, HourlyWeatherData data)
-    {
-        return _builder.Reset().SetLocation(location).AddForecast(data).GetResult();
-    }
 
-    public WeatherReport BuildHistoricalReport(LocationData location, HistoricalWeatherData data)
+    public WeatherReport BuildWeeklyAlertsReport(LocationData location, DailyWeatherData data, 
+        string cityName, List<WeatherAlert> alerts)
     {
-        return _builder.Reset().SetLocation(location).AddHistoricalData(data).GetResult();
-    }
-
-    public WeatherReport BuildComparisonReport(List<LocationData> locations, List<WeatherData> data) // implement
-    {
-        _builder.Reset();
-        _builder.GetResult().Title = "Comparison raport";
-        
-        var report = _builder.GetResult();
-        for (int i = 0; i < locations.Count; i++)
-        {
-            if (data[i] is CurrentWeatherData current)
-            {
-                report.Content += $" Location {i + 1} ({locations[i].latitude:F2}, {locations[i].longitude:F2}):\n";
-                report.Content += $" Temperature: {current.temperature_2m:F1}°C\n";
-                report.Content += $" {WeatherCodeHelper.GetDescription(current.weather_code)}\n\n";
-            }
-        }
-        
-        return report;
+        return _builder
+            .Reset()
+            .SetTitle("Weekly Alerts Report")
+            .SetType(ReportType.WEEKLY_ALERTS)
+            .SetLocation(location)
+            .AddAlertsHeader(cityName, data.time.Length, alerts.Count)
+            .AddDailyConditions(data)
+            .AddAlertsSummary(alerts)
+            .AddPotentialHazards(data)
+            .GetResult();
     }
 }

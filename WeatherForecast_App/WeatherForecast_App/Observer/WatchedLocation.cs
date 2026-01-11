@@ -18,7 +18,6 @@ public class WatchedLocation : ISubject
         if (!_observers.Contains(observer))
         {
             _observers.Add(observer);
-            Console.WriteLine($"Added observer {observer}.");
         }
     }
 
@@ -46,5 +45,10 @@ public class WatchedLocation : ISubject
         
         Console.WriteLine($"Weather has been updated.");
         Notify();
+    }
+    
+    public List<WeatherAlert> GetAlerts()
+    {
+        return _observers.OfType<WeatherAlert>().ToList();
     }
 }

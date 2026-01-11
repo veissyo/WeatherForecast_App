@@ -17,6 +17,15 @@ public class CurrentWeatherData : WeatherData
         return $"{description}, {temperature_2m:F1}°C (feels like {apparent_temperature:F1}°C), " +
                $"Wind: {wind_speed_10m:F1} km/h, Cloud cover: {cloud_cover}%";
     }
+    
+    public string GetFormattedTime()
+    {
+        if (DateTime.TryParse(time, out DateTime dateTime))
+        {
+            return dateTime.ToString("yyyy-MM-dd HH:mm");
+        }
+        return time;
+    }
 }
 
 public class CurrentWeatherResponse

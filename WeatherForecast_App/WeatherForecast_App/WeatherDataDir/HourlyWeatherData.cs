@@ -16,11 +16,20 @@ public class HourlyWeatherData : WeatherData
         var summary = $"Forecast for {time.Length} hours:\n";
         for (int i = 0; i < time.Length; i++)
         {
+            var formattedDateTime = FormatDateTime(time[i]);
             var desc = WeatherCodeHelper.GetDescription(weather_code[i]);
-            summary+= $"  {time[i]}: {temperature_2m[i]:F1}°C, {desc}\n";
+            summary+= $"  {formattedDateTime}: {temperature_2m[i]:F1}°C, {desc}\n";
         }
 
         return summary;
+    }
+    private string FormatDateTime(string dateTimeString)
+    {
+        if (DateTime.TryParse(dateTimeString, out DateTime dateTime))
+        {
+            return dateTime.ToString("yyyy-MM-dd HH:mm");
+        }
+        return dateTimeString;
     }
 }
 
