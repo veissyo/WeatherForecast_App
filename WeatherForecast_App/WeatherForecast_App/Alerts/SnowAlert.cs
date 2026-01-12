@@ -40,7 +40,7 @@ public class SnowAlert : WeatherAlert
                     
                     return $"SNOW FORECAST in {timeUntil.Hours}h {timeUntil.Minutes}min\n" +
                            $"Expected time: {hourly.time[i]}\n" +
-                           $"xpected snowfall: {hourly.snowfall[i]:F1}cm";
+                           $"Expected snowfall: {hourly.snowfall[i]:F1}cm";
                    
                 }
             }

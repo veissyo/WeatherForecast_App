@@ -66,6 +66,8 @@ package "W E A T H E R   _   S E R V I C E S"
         class HistoricalWeatherService
         {
             - _provider : IDataProvider
+            - _startDate : string[]
+            - _endDate : string[]
             + HistoricalWeatherService(IDataProvider provider)
             +FetchWeather(LocationData location) : Task<WeatherData>
         }
@@ -101,7 +103,7 @@ class APIClient << (C,orchid) Singleton >>
 }
 }
 
-package "D E C O R A T O R - D A T A _ P R O V I D E R" #Lavender
+package "S T R A T E G Y / D E C O R A T O R - P R O V I D E R S" #Lavender
 {
     interface IDataProvider << (I,orchid) Strategy >> {
     +GetWeatherData(LocationData location, WeatherServiceType serviceType) : Task<WeatherData>
@@ -326,8 +328,7 @@ class WatchedLocation
 }
 WatchedLocation o-- IWeatherObserver
 WatchedLocation ..|> ISubject
-WatchedLocation o-- CurrentWeatherData 
-WatchedLocation o-- DailyWeatherData 
+WatchedLocation o-- HourlyWeatherData 
 WatchedLocation o-- LocationData
 
 }
@@ -383,11 +384,11 @@ SnowAlert -up-|> WeatherAlert
 FloodAlert -up-|> WeatherAlert
 TemperatureAlert -up-|> WeatherAlert
 ThunderstormAlert -up-|> WeatherAlert
-FogAlert .up.> CurrentWeatherData  
-SnowAlert .up.> CurrentWeatherData 
-FloodAlert .up.> CurrentWeatherData 
-TemperatureAlert .up.> CurrentWeatherData 
-ThunderstormAlert .up.> CurrentWeatherData 
+FogAlert .up.> HourlyWeatherData  
+SnowAlert .up.> HourlyWeatherData 
+FloodAlert .up.> HourlyWeatherData 
+TemperatureAlert .up.> HourlyWeatherData 
+ThunderstormAlert .up.> HourlyWeatherData 
 FogAlert .down.> WeatherCodeHelper 
 SnowAlert .down.> WeatherCodeHelper 
 FloodAlert .down.> WeatherCodeHelper
@@ -427,13 +428,12 @@ interface IWeatherReportBuilder << (I,orchid) Builder >>
 class WeatherReportBuilder 
 {
     - _report : WeatherReport
-    - _weatherData : List<WeatherData>
     - _location : LocationData
     + WeatherReportBuilder(ReportType type)
-   + Reset(); : IWeatherReportBuilder
+    + Reset(); : IWeatherReportBuilder
        + SetLocation(LocationData location) : IWeatherReportBuilder
        + SetTitle(string title) : IWeatherReportBuilder
-       +AddComparisonHeader(string city1, string city2, int days) : IWeatherReportBuilder
+       + AddComparisonHeader(string city1, string city2, int days) : IWeatherReportBuilder
        + AddLocationWeatherSummary(string cityName, LocationData location, DailyWeatherData data) : IWeatherReportBuilder
        +AddComparisonSummary(DailyWeatherData data1, DailyWeatherData data2, string city1, string city2) : IWeatherReportBuilder
        +AddAlertsHeader(string cityName, int days, int alertCount) : IWeatherReportBuilder
@@ -514,6 +514,7 @@ package "I M P O R T / E X P O R T"
         + ImportWeatherData(string filePath) : Task<WeatherData?>
         - DeserializeHistoricalData(JsonElement weatherDataElement, double latitude, double longitude, string timezone) : HistoricalWeatherData
         + ImportWatchedLocations(string filePath) : Task<Dictionary<string, LocationData>?>
+        - IsJsonFile(string filePath) : bool
     }
 }
 
@@ -552,7 +553,7 @@ class WeatherForecastApp << (C,orchid) Facade >>
     + WeatherForecastApp()
     + ShowMenu() 
     + GetWeatherForCity(string cityName) : Task<CurrentWeatherData?> 
-    + GetForecast(string cityName, int days) : Task<DailyWeatherData?> 
+    + GetForecast(string cityName) : Task<DailyWeatherData?> 
     +  GetHourlyForecast(string cityName) : Task<HourlyWeatherData?>
     + GetHistoricalWeather(string cityName) : Task<HistoricalWeatherData?> 
     +  AddWatchedLocation(string cityName) :  Task<WatchedLocation?>
