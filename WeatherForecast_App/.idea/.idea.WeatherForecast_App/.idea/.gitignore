@@ -1,5 +1,8 @@
 ﻿# Default ignored files
+.sln
+.idea/
 /shelf/
+/obj/Debug
 /workspace.xml
 bin/
 obj/
