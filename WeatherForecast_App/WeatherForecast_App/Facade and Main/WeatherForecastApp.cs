@@ -159,6 +159,9 @@ public class WeatherForecastApp
             var service = _serviceFactory.CreateWeatherService(WeatherServiceType.HISTORICAL);
             var data = await service.FetchWeather(location);
             
+            _lastWeatherData = data;
+            _lastCityName = cityName;
+            
             return data as HistoricalWeatherData;
         }
         catch (Exception ex)
