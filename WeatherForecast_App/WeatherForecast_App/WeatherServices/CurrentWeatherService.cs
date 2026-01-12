@@ -7,7 +7,7 @@ public class CurrentWeatherService : IWeatherService
     {
         _provider = provider;
     }
-    public async Task<WeatherData> FetchWeather(LocationData location)
+    public async Task<WeatherData> FetchWeather(LocationData location) // gets weather data from API or cache (hence task)
     {
         var weatherData = await _provider.GetWeatherData(location, WeatherServiceType.CURRENT); // asks the provider for the data
         return weatherData; // returns the data as WeatherData

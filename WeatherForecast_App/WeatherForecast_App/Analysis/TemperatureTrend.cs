@@ -23,7 +23,7 @@ public class TemperatureTrend : IWeatherAnalysis
         return analysis;
     }
 
-    private string CalculateTrend(double[] temps)
+    private string CalculateTrend(double[] temps) // calculates if it's warming or cooling
     {
         if (temps.Length < 2) return "Unknown";
 
@@ -31,11 +31,7 @@ public class TemperatureTrend : IWeatherAnalysis
         var secondHalf = temps.Skip(temps.Length / 2).Average();
         var diff = secondHalf - firstHalf;
 
-        if (Math.Abs(diff) < 1.0)
-            return "Stable";
-        else if (diff > 0)
-            return $"Warming (+ {diff:F1} C)";
-        else
-            return $"Cooling (- {Math.Abs(diff):F1} C)";
+        if (Math.Abs(diff) < 1.0) { return "Stable"; }
+        return diff > 0 ? $"Warming (+ {diff:F1} C)" : $"Cooling (- {Math.Abs(diff):F1} C)";
     }
 }

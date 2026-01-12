@@ -1,6 +1,6 @@
 ﻿namespace WeatherForecast_App;
 
-public class WeatherCodeHelper // warto wykorzystac to do pozostalych alertow!
+public class WeatherCodeHelper // helps with adding short descriptions and checking weather conditions for extreme things like thunderstorms
 {
     public static string GetDescription(int code)
     {
@@ -51,11 +51,6 @@ public class WeatherCodeHelper // warto wykorzystac to do pozostalych alertow!
     public static bool IsHeavyRain(int code)
     {
         return code == 65 || code ==82;
-    }
-
-    public static bool IsGlazedFrost(int code)
-    {
-        return code == 56 || code == 57 || code == 66 || code == 67;
     }
 
     public static bool IsFog(int code)

@@ -1,6 +1,6 @@
 ﻿namespace WeatherForecast_App;
 
-public class ReportDirector
+public class ReportDirector // it builds the reports using weather report builder's methods
 {
     private readonly IWeatherReportBuilder _builder;
 

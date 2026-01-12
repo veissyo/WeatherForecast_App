@@ -2,7 +2,7 @@
 
 public class APIDataProvider : IDataProvider
 {
-    private APIClient _client; // API client
+    private APIClient _client; 
 
     public APIDataProvider()
     {

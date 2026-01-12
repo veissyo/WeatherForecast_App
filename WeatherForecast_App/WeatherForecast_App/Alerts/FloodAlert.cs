@@ -9,14 +9,6 @@ public class FloodAlert : WeatherAlert
         if (data is HourlyWeatherData hourly)
         {
             int hoursToCheck = Math.Min(6, hourly.rain.Length); // checks the next 6 hours
-            
-            for (int i = 0; i < hoursToCheck; i++)
-            {
-                if (hourly.rain[i] > 10.0) // > 10mm/h is heavy rain
-                {
-                    return true;
-                }
-            }
 
             for (int i = 0; i < hoursToCheck; i++)
             {
@@ -35,7 +27,7 @@ public class FloodAlert : WeatherAlert
         {
             for (int i = 0; i < Math.Min(24, hourly.rain.Length); i++) // checking when exactly the heavy rain is expected
             {
-                if (hourly.rain[i] > 10.0 || WeatherCodeHelper.IsHeavyRain(hourly.weather_code[i]))
+                if (WeatherCodeHelper.IsHeavyRain(hourly.weather_code[i]))
                 {
                     DateTime forecastTime = DateTime.Parse(hourly.time[i]);
                     DateTime now = DateTime.Now;
@@ -53,6 +45,6 @@ public class FloodAlert : WeatherAlert
                 }
             }
         }
-        return "Flood risk detected to heavy rain!";
+        return "Flood risk detected due to heavy rain!";
     }
 }

@@ -8,17 +8,23 @@ public class JSONDataImporter
     {
         try
         {
-            if (!File.Exists(filePath))
+            if (!File.Exists(filePath)) // checks if the file even exists
             {
                 Console.WriteLine($"File doesn't exist: {filePath}");
                 return null;
             }
+            
+            if (!IsJsonFile(filePath)) // makes it so that the file must be a JSON file, you can't read any other files
+            {
+                Console.WriteLine($"File is not a JSON file: {filePath}");
+                return null;
+            }
 
-            var json = await File.ReadAllTextAsync(filePath);
-            var doc = JsonDocument.Parse(json);
-            var root = doc.RootElement;
+            var json = await File.ReadAllTextAsync(filePath); //  reads the whole file
+            var doc = JsonDocument.Parse(json); 
+            var root = doc.RootElement; // creates a JsonElement from the root of the document
 
-            if (!root.TryGetProperty("DataType", out var dataTypeElement))
+            if (!root.TryGetProperty("DataType", out var dataTypeElement)) // checks if the DataType property exists
             {
                 Console.WriteLine("No information about data type found in file.");
                 return null;
@@ -31,7 +37,7 @@ public class JSONDataImporter
             var longitude = locationElement.GetProperty("Longitude").GetDouble();
             var timezone = locationElement.GetProperty("Timezone").GetString() ?? "UTC";
 
-            WeatherData? data = dataType switch
+            WeatherData? data = dataType switch // deserializes the data based on the DataType property into a WeatherData object
             {
                 "CurrentWeatherData" => JsonSerializer.Deserialize<CurrentWeatherData>(weatherDataElement.GetRawText()),
                 "DailyWeatherData" => JsonSerializer.Deserialize<DailyWeatherData>(weatherDataElement.GetRawText()),
@@ -57,9 +63,10 @@ public class JSONDataImporter
         }
     }
 
+    // helper method to deserialize historical weather data because it has daily weather data "inside"
     private HistoricalWeatherData? DeserializeHistoricalData(JsonElement weatherDataElement, double latitude, double longitude, string timezone)
     {
-        if (weatherDataElement.ValueKind == JsonValueKind.Null)
+        if (weatherDataElement.ValueKind == JsonValueKind.Null) 
         {
             return null;
         }
@@ -89,6 +96,12 @@ public class JSONDataImporter
                 Console.WriteLine($"File doesn't exist: {filePath}");
                 return null;
             }
+            
+            if (!IsJsonFile(filePath)) // makes it so that the file must be a JSON file, you can't read any other files
+            {
+                Console.WriteLine($"File is not a JSON file: {filePath}");
+                return null;
+            }
 
             var json = await File.ReadAllTextAsync(filePath);
             var doc = JsonDocument.Parse(json);
@@ -114,7 +127,7 @@ public class JSONDataImporter
                 }
             }
 
-            Console.WriteLine($"Successfully imported {locations.Count} locations from: {filePath}");
+            Console.WriteLine($"Successfully imported {locations.Count} locations from: {filePath}.");
             return locations;
         }
         catch (Exception ex)
@@ -123,4 +136,11 @@ public class JSONDataImporter
             return null;
         }
     }
+    
+    private bool IsJsonFile(string filePath) // checks if the extension of the file is .json
+    {
+        var extension = Path.GetExtension(filePath);
+        return string.Equals(extension, ".json", StringComparison.OrdinalIgnoreCase);
+    }
+
 }

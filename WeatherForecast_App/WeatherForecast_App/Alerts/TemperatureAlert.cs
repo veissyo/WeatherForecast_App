@@ -24,8 +24,8 @@ public class TemperatureAlert : WeatherAlert
                 if (_isAbove && temp > _threshold)
                 {
                     return true;
-                }
-                else if (!_isAbove && temp < _threshold)
+                } 
+                if (!_isAbove && temp < _threshold)
                 {
                     return true;
                 }
@@ -54,8 +54,7 @@ public class TemperatureAlert : WeatherAlert
                         continue;
                     }
                     
-                    string direction = _isAbove ? "ABOVE" : "BELOW";
-
+                    var direction = _isAbove ? "ABOVE" : "BELOW";
                     return
                         $"TEMPERATURE {direction} {_threshold}°C FORECAST in {timeUntil.Hours}h {timeUntil.Minutes}min\n" +
                         $"Expected time: {hourly.time[i]}\n" +
@@ -63,7 +62,7 @@ public class TemperatureAlert : WeatherAlert
                 }
             }
         }
-        string dir = _isAbove ? "above" : "below";
+        var dir = _isAbove ? "above" : "below";
         return $"Temperature {dir} {_threshold}°C detected!";
     }
 }

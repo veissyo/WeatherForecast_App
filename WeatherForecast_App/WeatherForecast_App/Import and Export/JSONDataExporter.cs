@@ -9,11 +9,11 @@ public class JSONDataExporter
 
     public JSONDataExporter()
     {
-        _options = new JsonSerializerOptions
+        _options = new JsonSerializerOptions // sets the options for serialization
         {
-            WriteIndented = true,
-            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-            IncludeFields = true
+            WriteIndented = true, // pretty-prints the JSON
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull, // ignores null values
+            IncludeFields = true // includes private fields
         };
     }
 
@@ -21,7 +21,7 @@ public class JSONDataExporter
     {
         object exportData; // an object to hold the data to be serialized and exported
 
-        if (data is CurrentWeatherData current)
+        if (data is CurrentWeatherData current) // checks the type of the data to determine which properties to export
         {
             exportData = new
             {
@@ -141,7 +141,7 @@ public class JSONDataExporter
 
         var json = JsonSerializer.Serialize(exportData, _options); // serializes the data to JSON
         await File.WriteAllTextAsync(filePath, json); // writes the JSON to a file, async so it doesn't block the running program
-        Console.WriteLine($"Weather data exported to: {filePath}");
+        Console.WriteLine($"Weather data exported to: {filePath}"); // gives the user the path
     }
 
     public async Task ExportWatchedLocations(Dictionary<string, WatchedLocation> locations, string filePath)
@@ -150,7 +150,7 @@ public class JSONDataExporter
         {
             ExportedAt = DateTime.Now,
             LocationsCount = locations.Count,
-            Locations = locations.Select(kvp => new
+            Locations = locations.Select(kvp => new // can be multiple locations
             {
                 CityName = kvp.Key,
                 Latitude = kvp.Value._locationData.latitude,
@@ -164,8 +164,8 @@ public class JSONDataExporter
             }).ToList()
         };
 
-        var json = JsonSerializer.Serialize(exportData, _options);
-        await File.WriteAllTextAsync(filePath, json);
+        var json = JsonSerializer.Serialize(exportData, _options); // serializes data
+        await File.WriteAllTextAsync(filePath, json); // writes is async
         Console.WriteLine($"Observed locations exported to: {filePath}");
     }
 

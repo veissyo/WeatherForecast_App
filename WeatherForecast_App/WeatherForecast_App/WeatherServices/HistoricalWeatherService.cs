@@ -11,7 +11,7 @@ public class HistoricalWeatherService : IWeatherService
         _provider = provider;
     }
 
-    public async Task<WeatherData> FetchWeather(LocationData location)
+    public async Task<WeatherData> FetchWeather(LocationData location) // gets weather data from API or cache (hence task)
     {
         var weatherData = await _provider.GetWeatherData(location, WeatherServiceType.HISTORICAL);
         return weatherData;

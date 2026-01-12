@@ -3,19 +3,16 @@
 public class WeatherReportBuilder : IWeatherReportBuilder
 {
     private WeatherReport _report;
-    private readonly List<WeatherData> _weatherData;
     private LocationData? _location;
     
     public WeatherReportBuilder(ReportType type)
     {
         _report = new WeatherReport(type);
-        _weatherData = new List<WeatherData>();
     }
 
     public IWeatherReportBuilder Reset()
     {
         _report = new WeatherReport(_report.Type);
-        _weatherData.Clear();
         _location = null;
         return this;
     }

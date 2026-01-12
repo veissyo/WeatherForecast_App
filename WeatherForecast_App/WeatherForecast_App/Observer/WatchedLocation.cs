@@ -4,7 +4,7 @@ public class WatchedLocation : ISubject
 {
     public readonly LocationData _locationData;
     private readonly List<IWeatherObserver> _observers; // we can have multiple observers
-    private HourlyWeatherData? _hourlyForecast;
+    private HourlyWeatherData? _hourlyForecast; // hourly because we need the weather code which daily doesn't have
 
     public WatchedLocation(LocationData location)
     {
@@ -26,7 +26,7 @@ public class WatchedLocation : ISubject
     {
         if (_hourlyForecast == null) return;
         //Console.WriteLine($"\nNotifying {_observers.Count} observers...");
-        foreach (var observer in _observers) // notify all observers
+        foreach (var observer in _observers) // all observers
         {
             observer.Update(_hourlyForecast); // update each observer (WeatherAlert)
         }

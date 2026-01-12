@@ -12,13 +12,12 @@ public class SnowAlert : WeatherAlert
             
             for (int i = 0; i < hoursToCheck; i++)
             {
-                if (hourly.snowfall[i] > 1.0 || WeatherCodeHelper.IsSnow(hourly.weather_code[i]))
+                if (WeatherCodeHelper.IsSnow(hourly.weather_code[i]))
                 {
                     return true;
                 }
             }
         }
-
         return false;
     }
 

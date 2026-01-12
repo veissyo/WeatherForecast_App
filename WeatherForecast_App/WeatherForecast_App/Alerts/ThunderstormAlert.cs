@@ -2,9 +2,7 @@
 
 public class ThunderstormAlert : WeatherAlert
 {
-    public ThunderstormAlert(string location) : base(location)
-    {
-    }
+    public ThunderstormAlert(string location) : base(location) { }
 
     protected override bool CheckCondition(WeatherData data)
     {
@@ -14,13 +12,13 @@ public class ThunderstormAlert : WeatherAlert
 
             for (int i = 0; i < hoursToCheck; i++)
             {
-                if (WeatherCodeHelper.IsThunderstorm(hourly.weather_code[i]))
+                if (WeatherCodeHelper.IsThunderstorm(hourly.weather_code[i])) // weather code says if it's thundering rn
                 {
                     return true;
                 }
             }
         }
-        return false;
+        return false; // if no thunderstorm is expected, return false
     }
 
     protected override string GetAlertMessage(WeatherData data)
@@ -35,7 +33,7 @@ public class ThunderstormAlert : WeatherAlert
                     DateTime now = DateTime.Now;
                     TimeSpan timeUntil = forecastTime - now;
                     
-                    if (timeUntil.TotalMinutes < 0)
+                    if (timeUntil.TotalMinutes < 0) // prevents things like -8 hours from showing up
                     {
                         continue;
                     }
@@ -47,7 +45,6 @@ public class ThunderstormAlert : WeatherAlert
                 }
             }
         }
-        
         return "Thunderstorm detected!";
     }
 }

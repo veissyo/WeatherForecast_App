@@ -15,7 +15,8 @@ public class CachedDataProvider : IDataProvider
 
     public async Task<WeatherData> GetWeatherData(LocationData location, WeatherServiceType serviceType)
     {
-        var cachedData = _cache.GetLast(location, serviceType); // checks if there's data in cache
+        var cachedData = _cache.GetLast(location, serviceType); // checks if there's data in the cache
+        // using location + service type as a key
         
         if (cachedData != null) 
         {
@@ -28,7 +29,7 @@ public class CachedDataProvider : IDataProvider
             }
         }
         Console.WriteLine("Cache data unavailable or expired. Fetching data from API.");
-        var freshData = await _fallbackProvider.GetWeatherData(location, serviceType); // falls back to API provider and fetches data there
+        var freshData = await _fallbackProvider.GetWeatherData(location, serviceType); // falls back to the API provider and fetches data there
         _cache.SaveState(freshData, location, serviceType); // if there was no saved data, save it to cache
         return freshData;
     }

@@ -1,6 +1,6 @@
 ﻿namespace WeatherForecast_App;
 
-public class WeatherReport
+public class WeatherReport // class for weather report, specifies the report's contents like title etc.
 {
     public string Title { get; set; } = "";
     public ReportType Type { get; set; }

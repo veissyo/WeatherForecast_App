@@ -1,9 +1,9 @@
 ﻿namespace WeatherForecast_App;
 
-public class WeatherHistoryMemento
+public class WeatherHistoryMemento // keeps a snapshot of the weather data and returns it if needed
 {
-    public WeatherData Data;
-    public DateTime Timestamp;
+    public WeatherData Data; // the weather data
+    public DateTime Timestamp; // when the snapshot was taken
     public LocationData Location;
     public WeatherServiceType ServiceType;
 
