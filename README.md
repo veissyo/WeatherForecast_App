@@ -1,14 +1,9 @@
-```
 
-╔══════════════════════════════════════════════════════════════════════════╗
-                                                                                                     
-                ☁  Weather Forecast Application  ☁                 
-                                                                                                     
-             ･ﾟ･ Real-time Weather Data & Smart Alerts ･ﾟ･            
-                                                                                                     
-╚══════════════════════════════════════════════════════════════════════════╝
-```
+## ☁  Weather Forecast Application  ☁
 
+･ﾟ･ Real-time Weather Data & Smart Alerts ･ﾟ･ 
+
+            
 ## ✦ Overview
 
 A comprehensive C# console application that provides real-time weather data, forecasts, and intelligent weather alerts. Built with 8 design patterns to demonstrate clean architecture and professional software engineering practices.
