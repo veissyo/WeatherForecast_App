@@ -6,7 +6,7 @@
             
 ## ✦ Overview
 
-A comprehensive C# console application that provides real-time weather data, forecasts, and intelligent weather alerts. Built with 8 design patterns to demonstrate clean architecture and professional software engineering practices.
+A comprehensive C# console application that provides real-time weather data, forecasts, and intelligent weather alerts. Built with 7 design patterns to demonstrate clean architecture and professional software engineering practices.
 
 ```
     ⋆｡°✩     Features at a Glance     ✩°｡⋆
@@ -88,7 +88,7 @@ Professional weather reports with **Builder Pattern**:
 
 ## ⚙️ Design Patterns
 
-This application showcases **8 professional design patterns**:
+This application showcases **7 professional design patterns**:
 
 ```
 ┌────────────────────────┬─────────────────────────────────────┐
@@ -112,7 +112,7 @@ This application showcases **8 professional design patterns**:
     ╭───────────────────────────────────────────╮
     │  Language:     C# / .NET 8.0              │
     │  API:          Open-Meteo Weather API     │
-    │  Patterns:     8 Design Patterns          │
+    │  Patterns:     7 Design Patterns          │
     │  Data Format:  JSON                       │
     ╰───────────────────────────────────────────╯
 ```
@@ -212,7 +212,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 ```
 ⋆｡°✩ ════════════════════════════════════════════ ✩°｡⋆
 
-            Built with ❤️ and 8 Design Patterns
+            Built with ❤️ and 7 Design Patterns
 
               Stay informed. Stay prepared.
 
