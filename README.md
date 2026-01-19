@@ -88,14 +88,14 @@ Professional weather reports with **Builder Pattern**:
 
 ## ⚙️ Design Patterns
 
-This application showcases **7 professional design patterns**:
+This application showcases **8 professional design patterns**:
 
 ```
 ┌────────────────────────┬─────────────────────────────────────┐
 │  Pattern               │  Implementation                     │
 ├──────────────────────────────────────────────────────────────┤
   ⚡ Singleton          │  APIClient - single HTTP instance                
-  📦 Strategy           │  IWeatherAnalysis, IDataProvider   
+  📦 Strategy           │  IWeatherAnalysis  
   🎭 Decorator          │  CachedDataProvider                 
   👁️  Observer          │  WatchedLocation + Alerts           
   🏗️  Builder           │  WeatherReportBuilder               
@@ -112,7 +112,7 @@ This application showcases **7 professional design patterns**:
     ╭───────────────────────────────────────────╮
     │  Language:     C# / .NET 8.0              │
     │  API:          Open-Meteo Weather API     │
-    │  Patterns:     7 Design Patterns          │
+    │  Patterns:     8 Design Patterns          │
     │  Data Format:  JSON                       │
     ╰───────────────────────────────────────────╯
 ```
@@ -212,7 +212,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 ```
 ⋆｡°✩ ════════════════════════════════════════════ ✩°｡⋆
 
-            Built with ❤️ and 7 Design Patterns
+            Built with ❤️ and 8 Design Patterns
 
               Stay informed. Stay prepared.
 
